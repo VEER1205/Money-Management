@@ -1,4 +1,5 @@
 from customtkinter import CTk
+from tkinter import ttk
 import customtkinter as ctk
 import os,sys
 
@@ -11,7 +12,7 @@ if __name__ == "__main__":
     main.pack(expand=False, side="left", fill="both",padx = 5,pady = 5) 
     content_frame = ctk.CTkFrame(master=app,width=395,height=330)
     content_frame.pack(side="right", expand=True, fill="both", padx=5, pady=5)
-    mess = ctk.CTkLabel(master=main,text="Welcome To Money Management \n App",width=185,height=185)
+    mess = ctk.CTkLabel(master=main,text="Welcome\nTo\nApp",width=185,height=185,font=("Roboto", 23,"bold"))
     mess.pack(expand = False,side = "top",padx = 10,pady = 5)
     # title = ctk.CTkLabel(content_frame,text = "TITLE",).pack(side = "top",padx = 10,pady = 10)
 
@@ -25,15 +26,16 @@ if __name__ == "__main__":
     amout.place(x = 123,y = 140)
     def Check_not_empty():
         if entery.get() == "" or amout.get() == "":
-            mess.configure(text = "Pls Enter The \nUseg Detials")
-            app.focus()
+            mess.configure(text = "Pls Enter The\nDetials",font = ("Roboto", 20,"bold"))
+            app.focus()    
         else:
             amout.delete(0,"end")
             entery.delete(0,"end")    
-            mess.configure(text = "Welcome To Money Management \n App")
+            mess.configure(text = "Welcom\nTo\nApp",font=("Roboto", 23,"bold"))
             app.focus()
 
-    sumbmit = ctk.CTkButton(add_f,width=100,height=30,text="Add",fg_color="red",command= lambda:Check_not_empty())
+
+    sumbmit = ctk.CTkButton(add_f,width=100,height=30,text="Add",command= lambda:Check_not_empty())
     sumbmit.place(x = 145,y = 200)
     
 
@@ -45,6 +47,9 @@ if __name__ == "__main__":
 
 # For Viwe All Entery
     book = ctk.CTkScrollableFrame(master=content_frame,)
+    ctk.CTkLabel(book, width=40, height=30, corner_radius=5, fg_color="gray", text="In.").grid(row = 0,column = 0,padx = 2)
+    ctk.CTkLabel(book, width=210, height=30, corner_radius=5, fg_color="gray", text="Details").grid(row = 0,column = 1,padx = 2)
+    ctk.CTkLabel(book, width=90, height=30, corner_radius=5, fg_color="gray", text="Amount").grid(row = 0,column = 2,padx = 2)
 
 
 
@@ -57,9 +62,9 @@ if __name__ == "__main__":
 
     def show_frame(frame):
         frame.lift()   
-    ctk.CTkButton(main,width=106,height=30,text="Add Entery",command=lambda:show_frame(add_f)).pack(padx = 10,pady = 10,side = "bottom")
+    ctk.CTkButton(main,width=106,height=26,text="Add Entery",command=lambda:show_frame(add_f)).pack(padx = 10,pady = 10,side = "bottom")
     ctk.CTkButton(main,width=30,height=30,text="Remove Entery",command=lambda:show_frame(remove_F)).pack(padx = 10,pady = 10,side = "bottom")
-    ctk.CTkButton(main,width=106,height=30,text="Show Entery",command=lambda:show_frame(book)).pack(pady = 10,side = "bottom")
+    ctk.CTkButton(main,width=106,height=30,text="Show Entery",command=lambda:show_frame(book),).pack(pady = 10,side = "bottom")
     show_frame(add_f)
 
     def restart_app():
@@ -69,8 +74,9 @@ if __name__ == "__main__":
 
 # Add a Restart Button in your UI
     btn_restart = ctk.CTkButton(master=main, text="Restart App", command=restart_app)
-    btn_restart.place(x=10, y=50) 
+    btn_restart.place(x = 40,y =10)
 
     app.geometry("600x350")
     app.resizable(False,False)
+    app.attributes("-topmost", True)
     app.mainloop()
