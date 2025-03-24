@@ -7,7 +7,7 @@ ctk.set_appearance_mode("system")
 if __name__ == "__main__":
     app = ctk.CTk()
 # Main Frame  
-
+    a = [("Buy laptop",100000000),("Phone",120000)]
     main = ctk.CTkFrame(master=app,width=195,height=280)
     main.pack(expand=False, side="left", fill="both",padx = 5,pady = 5) 
     content_frame = ctk.CTkFrame(master=app,width=395,height=330)
@@ -50,6 +50,13 @@ if __name__ == "__main__":
     ctk.CTkLabel(book, width=40, height=30, corner_radius=5, fg_color="gray", text="In.").grid(row = 0,column = 0,padx = 2)
     ctk.CTkLabel(book, width=210, height=30, corner_radius=5, fg_color="gray", text="Details").grid(row = 0,column = 1,padx = 2)
     ctk.CTkLabel(book, width=90, height=30, corner_radius=5, fg_color="gray", text="Amount").grid(row = 0,column = 2,padx = 2)
+    
+    def upadate():
+        print(0)
+        for i,(en,am) in enumerate(a):
+            ctk.CTkLabel(book, width=40, height=30, corner_radius=5, text=i+1).grid(row = i+1,column = 0,padx = 2)
+            ctk.CTkLabel(book, width=210, height=30, corner_radius=5,  text=en).grid(row =i+1,column = 1,padx = 2)
+            ctk.CTkLabel(book, width=90, height=30, corner_radius=5, text=am).grid(row = i+1,column = 2,padx = 2)
 
 
 
@@ -75,7 +82,7 @@ if __name__ == "__main__":
 # Add a Restart Button in your UI
     btn_restart = ctk.CTkButton(master=main, text="Restart App", command=restart_app)
     btn_restart.place(x = 40,y =10)
-
+    upadate()
     app.geometry("600x350")
     app.resizable(False,False)
     app.attributes("-topmost", True)
