@@ -28,6 +28,8 @@ if __name__ == "__main__":
     # login_pass = ctk.CTkEntry()
     login_bu = ctk.CTkButton(master=login_frame,text="Login",width=80,height=30,border_color="gray",corner_radius=10,command=lambda:login(),font=("Roboto", 20,"bold"))
     login_bu.pack(padx = 10,pady =100,side = "bottom")
+    password = ctk.CTkEntry(master=login_frame,width=150,height=30,placeholder_text="PASSWORD",font=("Roboto", 15,"bold"),justify="center")
+    password.place(x = 225,y =160)
 
 # For Adding The Entery 
     add_f = ctk.CTkFrame(master=content_frame,fg_color="#333333",)
@@ -57,7 +59,7 @@ if __name__ == "__main__":
     ctk.CTkLabel(table, width=105, height=28, corner_radius=5, fg_color="gray", text="Amount").grid(row = 0,column = 1,padx = 0,pady =4)
     
 # For Viwe All Entery
-    book = ctk.CTkScrollableFrame(master=content_frame,bg_color="#333333",fg_color="#333333",border_color="gray",border_width=1)
+    book = ctk.CTkScrollableFrame(master=content_frame,bg_color="#333333",fg_color="#333333",border_color="gray",border_width=1,scrollbar_button_color="#333333")
     ctk.CTkLabel(book, width=40, height=30, corner_radius=5, fg_color="gray", text="In.").grid(row = 0,column = 0,padx = 2,pady = 0)
     ctk.CTkLabel(book, width=210, height=30, corner_radius=5, fg_color="gray", text="Details").grid(row = 0,column = 1,padx = 2,pady =0)
     ctk.CTkLabel(book, width=90, height=30, corner_radius=5, fg_color="gray", text="Amount").grid(row = 0,column = 2,padx = 2,pady = 0)
@@ -139,7 +141,10 @@ if __name__ == "__main__":
         login_frame.lift()
 
     def login():
-        main_frame.lift()    
+        if login_id.get() == "" and password.get() == "":
+            pass
+        else:
+            main_frame.lift()    
 
     def restart_app():
         """Restart the application without closing the terminal."""
