@@ -1,75 +1,115 @@
-from customtkinter import CTk
-from tkinter import ttk
 import customtkinter as ctk
+import database as db
 import os,sys
+from PIL import Image
 
 ctk.set_appearance_mode("system")
 if __name__ == "__main__":
     app = ctk.CTk()
     main_frame = ctk.CTkFrame(master=app) 
     main_frame.place(x=0, y=0, relwidth=1, relheight=1)
+    a = []
 
 # Main Frame  
-    a = [("Buy laptop",+1000000000),("Phone",-120000),("The Phone ,pc,car and laptop mac book ",1234567890)]
-    
     main = ctk.CTkFrame(master=main_frame,width=195,height=280)
     main.pack(expand=False, side="left", fill="both",padx = 5,pady = 5) 
+
     content_frame = ctk.CTkFrame(master=main_frame,width=395,height=330)
     content_frame.pack(side="right", expand=True, fill="both", padx=5, pady=5)
+
     mess = ctk.CTkLabel(master=main,text="Welcome\nTo\nApp",width=185,height=185,font=("Roboto", 23,"bold"))
     mess.pack(expand = False,side = "top",padx = 10,pady = 7)
-    # title = ctk.CTkLabel(content_frame,text = "TITLE",).pack(side = "top",padx = 10,pady = 10)
+
+
 
 # Login Frame
     login_frame = ctk.CTkFrame(master=app)
     login_frame.place(x=0, y=0, relwidth=1, relheight=1)
+
     login_id = ctk.CTkEntry(master=login_frame,width=150,height=30,placeholder_text="Enter The ID",font=("Roboto", 15,"bold"),justify="center")
-    login_id.place(x = 225,y =120)
-    # login_pass = ctk.CTkEntry()
-    login_bu = ctk.CTkButton(master=login_frame,text="Login",width=80,height=30,border_color="gray",corner_radius=10,command=lambda:login(),font=("Roboto", 20,"bold"))
-    login_bu.pack(padx = 10,pady =100,side = "bottom")
-    password = ctk.CTkEntry(master=login_frame,width=150,height=30,placeholder_text="PASSWORD",font=("Roboto", 15,"bold"),justify="center")
-    password.place(x = 225,y =160)
+    login_id.place(relx=0.5, rely=0.35, anchor="center") 
+    
+    eye_open = ctk.CTkImage(light_image=Image.open("images/image.png"), size=(20, 20))
+    eye_closed = ctk.CTkImage(light_image=Image.open("images/eye-crossed.png"), size=(20, 20))
+
+    login_mess = ctk.CTkLabel(master=login_frame,text="",font=("Roboto", 15,"bold"),width=150,height=30)
+    login_mess.place(relx=0.5, rely=0.25, anchor="center") 
+
+    login_button = ctk.CTkButton(master=login_frame,text="Login",width=60,height=30,border_color="gray",corner_radius=10,command=lambda:(login()),font=("Roboto", 15,"bold"))
+    login_button.place(relx=0.42, rely=0.65, anchor="center") 
+
+    password = ctk.CTkEntry(master=login_frame,width=150,height=30,placeholder_text="PASSWORD",show = "*",font=("Roboto", 15,"bold"),justify="center")
+    password.place(relx=0.5, rely=0.5, anchor="center")
+
+    new_user = ctk.CTkButton(master=login_frame,text="Sign Up",width=60,height=30,border_color="gray",corner_radius=10,command=lambda:(New_user()),font=("Roboto", 15,"bold"))
+    new_user.place(relx=0.57, rely=0.65, anchor="center") 
+
+    show = ctk.CTkButton(master= login_frame,text="",image=eye_open,fg_color="transparent",hover_color="#333333",width=20,height=30,command=lambda: show_password())
+    show.place(relx=0.66, rely=0.5, anchor="center") 
+
+
+    
+
 
 # For Adding The Entery 
+
     add_f = ctk.CTkFrame(master=content_frame,fg_color="#333333",)
+
     entery = ctk.CTkEntry(add_f,placeholder_text="Enter The Entery",width=200,height=50,font=("Roboto", 20,"bold"),justify="center")
     entery.place(x = 100,y = 70,)
+
     amout = ctk.CTkEntry(add_f,placeholder_text = "Enter The Amount",width=150,height=40,font=("Roboto", 13,"bold"),justify="center")
     amout.place(x = 123,y = 140)
+
     cke = ctk.CTkCheckBox(add_f,width=40,height=40,checkbox_height=20,checkbox_width=20,text="IF CASH IS ADD")
     cke.place(x = 136,y = 190)
+
     sumbmit = ctk.CTkButton(add_f,width=100,height=30,text="Add",command= lambda:Check_not_empty())
     sumbmit.place(x = 145,y = 240)
-    
+
+
+
 # For removing The Entery
+
     remove_F = ctk.CTkFrame(master=content_frame)
+    
     table = ctk.CTkFrame(master=remove_F,border_width=1,border_color="gray",height=100,width=200)
     table.pack(fill = "both",expand = True,pady = 5,padx = 3)
     table.pack_propagate(False) 
+
     manu = ctk.CTkFrame(master=remove_F,height=250)
     manu.pack(fill = "both", padx = 3,pady = 5)
     manu.pack_propagate(False)
+
     index = ctk.CTkLabel(master = manu,text="Enter The Index For Remove The Entery",height=50,font = ("Roboto", 15,"bold"))
     index.pack(side = "top",padx = 10,pady =15)
+
     index_in = ctk.CTkEntry(manu,width=80,height=30,placeholder_text="Enter",font=("Roboto", 20,"bold"),justify="center")
     index_in.pack(side = "top",padx = 10,pady = 10)
+
     delet = ctk.CTkButton(manu,text="Remove",command= lambda:remove()).pack()
+
     ctk.CTkLabel(table, width=250, height=28, corner_radius=5, fg_color="gray", text="Details").grid(row = 0,column = 0,padx =5,pady =4)
     ctk.CTkLabel(table, width=105, height=28, corner_radius=5, fg_color="gray", text="Amount").grid(row = 0,column = 1,padx = 0,pady =4)
-    
+
+
+
+
 # For Viwe All Entery
+
     book = ctk.CTkScrollableFrame(master=content_frame,bg_color="#333333",fg_color="#333333",border_color="gray",border_width=1,scrollbar_button_color="#333333")
     ctk.CTkLabel(book, width=40, height=30, corner_radius=5, fg_color="gray", text="In.").grid(row = 0,column = 0,padx = 2,pady = 0)
     ctk.CTkLabel(book, width=210, height=30, corner_radius=5, fg_color="gray", text="Details").grid(row = 0,column = 1,padx = 2,pady =0)
     ctk.CTkLabel(book, width=90, height=30, corner_radius=5, fg_color="gray", text="Amount").grid(row = 0,column = 2,padx = 2,pady = 0)
-       
+
+
+
 # The Main Logic 
+
     for frame in (add_f, book, remove_F):
         frame.place(x=0, y=0, relwidth=1, relheight=1)
     
-    
-    def upadate():
+    def update():
         # Remove only old data (skip headers)
         for widget in book.winfo_children()[3:]:
             widget.destroy()
@@ -101,9 +141,10 @@ if __name__ == "__main__":
                         widget.destroy()
                     ctk.CTkLabel(table, width=250, height=28, corner_radius=5 , text=e,anchor="w").grid(row = 1,column = 0,padx =5,pady =1)
                     ctk.CTkLabel(table, width=105, height=28, corner_radius=5, text=m,anchor="e").grid(row = 1,column = 1,padx = 0,pady = 1)                
+                    db.delet_data(uid,e)
                     del a[int(index_in.get())-1]
                     mess.configure(text = "Entry Removed!",font=("Roboto", 23,"bold"))
-                    upadate()
+                    update()
                     index_in.delete(0,"end") 
                     app.focus()
             except:  
@@ -119,13 +160,15 @@ if __name__ == "__main__":
             try:
                 if cke.get():
                     a.append(tuple([entery.get().title(),int(amout.get())]))
+                    db.add_data(uid,entery.get().title(),int(amout.get()))
                 else:    
-                    a.append(tuple([entery.get().title(),-int(amout.get())]))    
+                    a.append(tuple([entery.get().title(),-int(amout.get())]))  
+                    db.add_data(uid,entery.get().title(),-int(amout.get()))  
                 amout.delete(0,"end")
                 entery.delete(0,"end")  
                 cke.deselect()  
                 mess.configure(text = "Entry Added!",font=("Roboto", 23,"bold"))
-                upadate()
+                update()
                 app.focus()
             except:
                 mess.configure(text = "INVALIDE\nINPUT",font = ("Roboto", 20,"bold"))
@@ -133,28 +176,64 @@ if __name__ == "__main__":
     def show_frame(frame):
         mess.configure(text = "Welcome\nTo\nApp",font = ("Roboto", 20,"bold"))
         frame.lift() 
+    
     ctk.CTkButton(master=main,text="Add Entery",command=lambda:show_frame(add_f),).pack(pady = 10,side = "bottom")
     ctk.CTkButton(master=main,text="Remove Entery",command=lambda:show_frame(remove_F),).pack(pady = 0,side = "bottom")
     ctk.CTkButton(master=main,text="Show Entery",command=lambda:show_frame(book),).pack(pady = 10,side = "bottom")
-    show_frame(remove_F)
+    show_frame(book)
+
+    def show_password():
+        if password.cget("show") == "*":
+            password.configure(show="")
+            show.configure(image=eye_closed)  
+        else:
+            password.configure(show="*")
+            show.configure(image=eye_open)
+
     def logout():
         login_frame.lift()
 
     def login():
-        if login_id.get() == "" and password.get() == "":
-            pass
+        global uid  
+        if login_id.get() == "" or password.get() == "":
+           pass
         else:
-            main_frame.lift()    
+            uid = db.get_user(login_id.get(), password.get())
+            if uid:
+                global a  
+                a = db.load_data(uid)  # Load user data after login
+                update()
+                main_frame.lift()
+            else:
+                if db.user_exists(login_id.get()):
+                    login_mess.configure(text="Wrong Password!", font=("Roboto", 15, "bold"))
+                else:
+                    login_mess.configure(text="No account found!", font=("Roboto", 15, "bold"))
+   
+    def New_user():
+        if db.user_exists(login_id.get()):
+            login_mess.configure(text="Account already exists!", font=("Roboto", 15, "bold"))
+        
+        elif login_id.get() == "" or password.get() == "":
+            pass
+        
+        else:
+            db.create_user(login_id.get(),password.get())
+            login_mess.configure(text="Account created successfully!", font=("Roboto", 15, "bold"))
+            login_id.delete(0,"end")
+            password.delete(0,"end")
 
     def restart_app():
         """Restart the application without closing the terminal."""
         python = sys.executable  # Get the Python interpreter path
         os.execl(python, python, *sys.argv)  # Restart the script
-   
+
+
+
 # Add a Restart Button in your UI
     btn_restart = ctk.CTkButton(master=main, text="Restart App", command=restart_app)
     btn_restart.place(x = 40,y =10)
-    upadate()
+    update()
     app.geometry("600x350")
     app.resizable(False,False)
     app.attributes("-topmost", True)
