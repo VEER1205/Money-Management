@@ -6,6 +6,7 @@ from PIL import Image
 ctk.set_appearance_mode("system")
 if __name__ == "__main__":
     app = ctk.CTk()
+    ctk.set_default_color_theme("themes/marsh.json")
     main_frame = ctk.CTkFrame(master=app) 
     main_frame.place(x=0, y=0, relwidth=1, relheight=1)
     a = []

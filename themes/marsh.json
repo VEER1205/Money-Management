@@ -27,13 +27,13 @@
       "text_color": ["gray10", "#F0F8ED"]
     },
     "CTkEntry": {
-      "corner_radius": 6,
-      "border_width": 2,
-      "fg_color": ["#C9E6D5", "#5E7B6B"],
-      "border_color": ["#7E977D", "#465D54"],
-      "text_color":["gray10", "#F0F8ED"],
-      "placeholder_text_color": ["gray52", "gray62"]
-    },
+    "corner_radius": 6,
+    "border_width": 2,
+    "fg_color": ["#F9F9FA", "#343638"],
+    "border_color": ["#979DA2", "#565B5E"],
+    "text_color": ["gray14", "gray84"],
+    "placeholder_text_color": ["gray52", "gray62"]
+  },
     "CTkCheckBox": {
       "corner_radius": 6,
       "border_width": 3,
