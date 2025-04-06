@@ -20,7 +20,6 @@ conn = connector.connect(
     database=mysql_database
 )
 
-
 cus = conn.cursor()
 def get_user(login_id,password):
     cus.execute("SELECT id FROM User WHERE name = %s AND pass = %s",(login_id,password))
@@ -45,8 +44,8 @@ def delet_data(uid,entry):
 
 def user_exists(login_id):
     cus.execute("SELECT id FROM User WHERE name = %s", (login_id,))
-    return cus.fetchone() is not None 
-
-def user_exists(login_id):
-    cus.execute("SELECT id FROM User WHERE name = %s", (login_id,))
     return cus.fetchone() is not None  # Returns True if user exists, False otherwise
+
+def get_total(uid):
+    cus.execute("SELECT SUM(amount) FROM  entrys WHERE uid = %s",uid)
+    return cus.fetchall()

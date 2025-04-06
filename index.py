@@ -7,19 +7,24 @@ ctk.set_appearance_mode("system")
 if __name__ == "__main__":
     app = ctk.CTk()
     ctk.set_default_color_theme("themes/marsh.json")
+    app.title("Money Management")
     main_frame = ctk.CTkFrame(master=app) 
     main_frame.place(x=0, y=0, relwidth=1, relheight=1)
     a = []
 
 # Main Frame  
-    main = ctk.CTkFrame(master=main_frame,width=195,height=280)
-    main.pack(expand=False, side="left", fill="both",padx = 5,pady = 5) 
+
+    main = ctk.CTkFrame(master=main_frame,width=220,height=280)
+    main.pack(expand=True, side="left", fill="both",padx = 5,pady = 5) 
 
     content_frame = ctk.CTkFrame(master=main_frame,width=395,height=330)
-    content_frame.pack(side="right", expand=True, fill="both", padx=5, pady=5)
+    content_frame.pack(side="right", expand=False, fill="y", padx=5, pady=5)
 
-    mess = ctk.CTkLabel(master=main,text="Welcome\nTo\nApp",width=185,height=185,font=("Roboto", 23,"bold"))
-    mess.pack(expand = False,side = "top",padx = 10,pady = 7)
+    mess = ctk.CTkLabel(master=main,text="Welcome\nTo\nApp",width=185,height=120,font=("Roboto", 23,"bold"),)
+    mess.place(relx = 0.5,rely=0.35, anchor="center")
+
+    total = ctk.CTkLabel(master = main,text="Balance = 0",anchor="w",height=30,font=("Roboto", 17,"bold"))
+    total.place(relx=0.5, rely=0.58, anchor="center") 
 
 
 
@@ -56,6 +61,15 @@ if __name__ == "__main__":
 
     add_f = ctk.CTkFrame(master=content_frame,fg_color="#333333",)
 
+    add_mess = ctk.CTkLabel(master=main,text="Entry Added!",width=185,height=120,font=("Roboto", 23,"bold"),text_color="green")
+    add_mess.place(relx = 0.5,rely=0.35, anchor="center")
+
+    add_error = ctk.CTkLabel(master=main,text="INVALIDE\nINPUT",width=185,height=120,font=("Roboto", 23,"bold"),)
+    add_error.place(relx = 0.5,rely=0.35, anchor="center")
+
+    empty = ctk.CTkLabel(master=main,text="Pls Enter The\nDetials",width=185,height=120,font=("Roboto", 23,"bold"),)
+    empty.place(relx = 0.5,rely=0.35, anchor="center")
+
     entery = ctk.CTkEntry(add_f,placeholder_text="Enter The Entery",width=200,height=50,font=("Roboto", 20,"bold"),justify="center")
     entery.place(x = 100,y = 70,)
 
@@ -72,7 +86,7 @@ if __name__ == "__main__":
 
 # For removing The Entery
 
-    remove_F = ctk.CTkFrame(master=content_frame)
+    remove_F = ctk.CTkFrame(master=content_frame,bg_color="transparent",corner_radius=20, fg_color ="transparent")
     
     table = ctk.CTkFrame(master=remove_F,border_width=1,border_color="gray",height=100,width=200)
     table.pack(fill = "both",expand = True,pady = 5,padx = 3)
@@ -120,42 +134,41 @@ if __name__ == "__main__":
             ctk.CTkLabel(book, width=40, height=30, corner_radius=5, fg_color="gray", text="In.").grid(row=0, column=0, padx=2, sticky="w")
             ctk.CTkLabel(book, width=210, height=30, corner_radius=5, fg_color="gray", text="Details").grid(row=0, column=1, padx=2, sticky="w")
             ctk.CTkLabel(book, width=90, height=30, corner_radius=5, fg_color="gray", text="Amount").grid(row=0, column=2, padx=2, sticky="w")
-    
+
+        total_amount = 0
         for i, (en, am) in enumerate(a):
             ctk.CTkLabel(book, width=40, height=30, text=i+1).grid(row=i+1, column=0, padx=2)
             ctk.CTkLabel(book, width=210, height=30, text=en, anchor="w",wraplength=180).grid(row=i+1, column=1, padx=2)
             ctk.CTkLabel(book, width=90, height=30, text=am, anchor="e").grid(row=i+1, column=2, padx=2) 
+            total_amount += am
+
+        total.configure(text = f"Balance = {total_amount}")    
     
     def remove():
         if index_in.get() == "":
             mess.configure(text = "Pls Enter\nIndex",font = ("Roboto", 20,"bold"))
             app.focus()   
         else:
-            try:
-                if int(index_in.get())<=0:
-                    mess.configure(text = "INVALIDE\nINPUT",font = ("Roboto", 20,"bold"))
-                    index_in.delete(0,"end") 
-                    app.focus()
-                else: 
-                    e,m = a[int(index_in.get())-1]
-                    for widget in table.winfo_children()[2:]:
-                        widget.destroy()
-                    ctk.CTkLabel(table, width=250, height=28, corner_radius=5 , text=e,anchor="w").grid(row = 1,column = 0,padx =5,pady =1)
-                    ctk.CTkLabel(table, width=105, height=28, corner_radius=5, text=m,anchor="e").grid(row = 1,column = 1,padx = 0,pady = 1)                
-                    db.delet_data(uid,e)
-                    del a[int(index_in.get())-1]
-                    mess.configure(text = "Entry Removed!",font=("Roboto", 23,"bold"))
-                    update()
-                    index_in.delete(0,"end") 
-                    app.focus()
-            except:  
-                mess.configure(text = "Invalid\nSelection!",font = ("Roboto", 20,"bold")) 
-                index_in.delete(0,"end")  
+            if int(index_in.get())<=0:
+                mess.configure(text = "Invalid\nSelection!",font = ("Roboto", 20,"bold"))
+                index_in.delete(0,"end") 
+                app.focus()
+            else: 
+                e,m = a[int(index_in.get())-1]
+                for widget in table.winfo_children()[2:]:
+                    widget.destroy()
+                ctk.CTkLabel(table, width=250, height=28, corner_radius=5 , text=e,anchor="w").grid(row = 1,column = 0,padx =5,pady =1)
+                ctk.CTkLabel(table, width=105, height=28, corner_radius=5, text=m,anchor="e").grid(row = 1,column = 1,padx = 0,pady = 1)                
+                db.delet_data(uid,e)
+                del a[int(index_in.get())-1]
+                mess.configure(text = "Entry Removed!",font=("Roboto", 23,"bold"))
+                update()
+                index_in.delete(0,"end") 
                 app.focus()
 
     def Check_not_empty():
         if entery.get() == "" or amout.get() == "":
-            mess.configure(text = "Pls Enter The\nDetials",font = ("Roboto", 20,"bold"))
+            empty.lift()
             app.focus()    
         else:
             try:
@@ -168,19 +181,20 @@ if __name__ == "__main__":
                 amout.delete(0,"end")
                 entery.delete(0,"end")  
                 cke.deselect()  
-                mess.configure(text = "Entry Added!",font=("Roboto", 23,"bold"))
+                add_mess.lift()
                 update()
                 app.focus()
             except:
-                mess.configure(text = "INVALIDE\nINPUT",font = ("Roboto", 20,"bold"))
+                add_error.lift()
+                app.focus()
 
     def show_frame(frame):
         mess.configure(text = "Welcome\nTo\nApp",font = ("Roboto", 20,"bold"))
         frame.lift() 
     
-    ctk.CTkButton(master=main,text="Add Entery",command=lambda:show_frame(add_f),).pack(pady = 10,side = "bottom")
-    ctk.CTkButton(master=main,text="Remove Entery",command=lambda:show_frame(remove_F),).pack(pady = 0,side = "bottom")
-    ctk.CTkButton(master=main,text="Show Entery",command=lambda:show_frame(book),).pack(pady = 10,side = "bottom")
+    ctk.CTkButton(master=main,text="Add Entery",command=lambda:(show_frame(add_f),mess.lift()),).pack(pady = 10,side = "bottom")
+    ctk.CTkButton(master=main,text="Remove Entery",command=lambda:(show_frame(remove_F),mess.lift()),).pack(pady = 0,side = "bottom")
+    ctk.CTkButton(master=main,text="Show Entery",command=lambda:(show_frame(book),mess.lift()),).pack(pady = 10,side = "bottom")
     show_frame(book)
 
     def show_password():
@@ -235,6 +249,7 @@ if __name__ == "__main__":
     btn_restart = ctk.CTkButton(master=main, text="Restart App", command=restart_app)
     btn_restart.place(x = 40,y =10)
     update()
+    mess.lift()
     app.geometry("600x350")
     app.resizable(False,False)
     app.attributes("-topmost", True)
