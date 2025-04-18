@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import database as db
 import os,sys
+from tkinter import messagebox
 from PIL import Image
 
 ctk.set_appearance_mode("system")
@@ -13,12 +14,14 @@ if __name__ == "__main__":
     a = []
 
 # Main Frame  
+    m = ctk.CTkFrame(master=main_frame,width=200,height=280, bg_color="transparent", fg_color="transparent", corner_radius=5)
+    m.pack(expand=True, side="left", fill="y",padx = 5,pady = 5) 
 
-    main = ctk.CTkFrame(master=main_frame,width=220,height=280)
-    main.pack(expand=True, side="left", fill="both",padx = 5,pady = 5) 
-
-    content_frame = ctk.CTkFrame(master=main_frame,width=395,height=330)
+    content_frame = ctk.CTkFrame(master=main_frame,width=400,height=330, bg_color="transparent", fg_color="transparent", corner_radius=5,border_color="gray")
     content_frame.pack(side="right", expand=False, fill="y", padx=5, pady=5)
+        
+    main = ctk.CTkFrame(master=m,fg_color="#333333",corner_radius=5)
+    main.place(x = 0, y = 0, relwidth=1, relheight=1 )
 
     mess = ctk.CTkLabel(master=main,text="Welcome\nTo\nApp",width=185,height=120,font=("Roboto", 23,"bold"),)
     mess.place(relx = 0.5,rely=0.35, anchor="center")
@@ -26,7 +29,21 @@ if __name__ == "__main__":
     total = ctk.CTkLabel(master = main,text="Balance = 0",anchor="w",height=30,font=("Roboto", 17,"bold"))
     total.place(relx=0.5, rely=0.58, anchor="center") 
 
+# setting 
+    setting = ctk.CTkFrame(master=m, bg_color="transparent", fg_color="#333333", corner_radius=5)
+    setting.place(x = 0, y = 0, relwidth=1, relheight=1 )
 
+    sett_i = ctk.CTkImage(light_image=Image.open("images/setting.png"), size=(20, 20))
+    home_i = ctk.CTkImage(light_image=Image.open("images/home.png"), size=(20, 20))
+
+    setting_button = ctk.CTkButton(master=main,text="",image=sett_i,height= 20,width=20,command= lambda : show_frame(setting))
+    setting_button.place(relx = 0.05, rely = 0.02)
+
+    home_button = ctk.CTkButton(master=setting,text="",image=home_i,height= 20,width=20,command= lambda : show_frame(main))
+    home_button.place(relx = 0.05, rely = 0.02)
+
+    delete_buttom = ctk.CTkButton(master=setting, text="Delete Account", command=lambda:Delete_user())
+    delete_buttom.pack(side = "bottom",pady = 10)
 
 # Login Frame
     login_frame = ctk.CTkFrame(master=app)
@@ -41,25 +58,22 @@ if __name__ == "__main__":
     login_mess = ctk.CTkLabel(master=login_frame,text="",font=("Roboto", 15,"bold"),width=150,height=30)
     login_mess.place(relx=0.5, rely=0.25, anchor="center") 
 
-    login_button = ctk.CTkButton(master=login_frame,text="Login",width=60,height=30,border_color="gray",corner_radius=10,command=lambda:(login()),font=("Roboto", 15,"bold"))
+    login_button = ctk.CTkButton(master=login_frame,text="Login",width=60,height=30,border_color="gray",corner_radius=5,command=lambda:(login()),font=("Roboto", 15,"bold"))
     login_button.place(relx=0.42, rely=0.65, anchor="center") 
 
     password = ctk.CTkEntry(master=login_frame,width=150,height=30,placeholder_text="PASSWORD",show = "*",font=("Roboto", 15,"bold"),justify="center")
     password.place(relx=0.5, rely=0.5, anchor="center")
 
-    new_user = ctk.CTkButton(master=login_frame,text="Sign Up",width=60,height=30,border_color="gray",corner_radius=10,command=lambda:(New_user()),font=("Roboto", 15,"bold"))
+    new_user = ctk.CTkButton(master=login_frame,text="Sign Up",width=60,height=30,border_color="gray",corner_radius=5,command=lambda:(New_user()),font=("Roboto", 15,"bold"))
     new_user.place(relx=0.57, rely=0.65, anchor="center") 
 
     show = ctk.CTkButton(master= login_frame,text="",image=eye_open,fg_color="transparent",hover_color="#333333",width=20,height=30,command=lambda: show_password())
     show.place(relx=0.66, rely=0.5, anchor="center") 
 
 
-    
-
-
 # For Adding The Entery 
 
-    add_f = ctk.CTkFrame(master=content_frame,fg_color="#333333",)
+    add_f = ctk.CTkFrame(master=content_frame, bg_color="transparent", fg_color="#333333", corner_radius=5)
 
     add_mess = ctk.CTkLabel(master=main,text="Entry Added!",width=185,height=120,font=("Roboto", 23,"bold"),text_color="green")
     add_mess.place(relx = 0.5,rely=0.35, anchor="center")
@@ -83,10 +97,9 @@ if __name__ == "__main__":
     sumbmit.place(x = 145,y = 240)
 
 
-
 # For removing The Entery
 
-    remove_F = ctk.CTkFrame(master=content_frame,bg_color="transparent",corner_radius=20, fg_color ="transparent")
+    remove_F = ctk.CTkFrame(master=content_frame, bg_color="#333333",fg_color="#333333",corner_radius=10)
     
     table = ctk.CTkFrame(master=remove_F,border_width=1,border_color="gray",height=100,width=200)
     table.pack(fill = "both",expand = True,pady = 5,padx = 3)
@@ -109,7 +122,6 @@ if __name__ == "__main__":
 
 
 
-
 # For Viwe All Entery
 
     book = ctk.CTkScrollableFrame(master=content_frame,bg_color="#333333",fg_color="#333333",border_color="gray",border_width=1,scrollbar_button_color="#333333")
@@ -118,11 +130,12 @@ if __name__ == "__main__":
     ctk.CTkLabel(book, width=90, height=30, corner_radius=5, fg_color="gray", text="Amount").grid(row = 0,column = 2,padx = 2,pady = 0)
 
 
-
 # The Main Logic 
 
     for frame in (add_f, book, remove_F):
-        frame.place(x=0, y=0, relwidth=1, relheight=1)
+        frame.place(x=0,y = 0, relwidth=1, relheight=1)
+    add_f.pack_propagate(False)
+    book.pack_propagate(False)    
     
     def update():
         # Remove only old data (skip headers)
@@ -134,7 +147,6 @@ if __name__ == "__main__":
             ctk.CTkLabel(book, width=40, height=30, corner_radius=5, fg_color="gray", text="In.").grid(row=0, column=0, padx=2, sticky="w")
             ctk.CTkLabel(book, width=210, height=30, corner_radius=5, fg_color="gray", text="Details").grid(row=0, column=1, padx=2, sticky="w")
             ctk.CTkLabel(book, width=90, height=30, corner_radius=5, fg_color="gray", text="Amount").grid(row=0, column=2, padx=2, sticky="w")
-
         total_amount = 0
         for i, (en, am) in enumerate(a):
             ctk.CTkLabel(book, width=40, height=30, text=i+1).grid(row=i+1, column=0, padx=2)
@@ -149,11 +161,7 @@ if __name__ == "__main__":
             mess.configure(text = "Pls Enter\nIndex",font = ("Roboto", 20,"bold"))
             app.focus()   
         else:
-            if int(index_in.get())<=0:
-                mess.configure(text = "Invalid\nSelection!",font = ("Roboto", 20,"bold"))
-                index_in.delete(0,"end") 
-                app.focus()
-            else: 
+            try:
                 e,m = a[int(index_in.get())-1]
                 for widget in table.winfo_children()[2:]:
                     widget.destroy()
@@ -165,7 +173,11 @@ if __name__ == "__main__":
                 update()
                 index_in.delete(0,"end") 
                 app.focus()
-
+            except:
+                mess.configure(text = "Invalid\nSelection!",font = ("Roboto", 20,"bold"))
+                index_in.delete(0,"end") 
+                app.focus() 
+                
     def Check_not_empty():
         if entery.get() == "" or amout.get() == "":
             empty.lift()
@@ -173,11 +185,11 @@ if __name__ == "__main__":
         else:
             try:
                 if cke.get():
-                    a.append(tuple([entery.get().title(),int(amout.get())]))
-                    db.add_data(uid,entery.get().title(),int(amout.get()))
+                    a.append(tuple([entery.get().title(),float(amout.get())]))
+                    db.add_data(uid,entery.get().title(),float(amout.get()))
                 else:    
-                    a.append(tuple([entery.get().title(),-int(amout.get())]))  
-                    db.add_data(uid,entery.get().title(),-int(amout.get()))  
+                    a.append(tuple([entery.get().title(),-float(amout.get())]))  
+                    db.add_data(uid,entery.get().title(),-float(amout.get()))  
                 amout.delete(0,"end")
                 entery.delete(0,"end")  
                 cke.deselect()  
@@ -189,9 +201,10 @@ if __name__ == "__main__":
                 app.focus()
 
     def show_frame(frame):
-        mess.configure(text = "Welcome\nTo\nApp",font = ("Roboto", 20,"bold"))
-        frame.lift() 
-    
+        if frame in [add_f,remove_F,book]:
+            mess.configure(text = "Welcome\nTo\nApp",font = ("Roboto", 20,"bold"))
+        frame.lift()
+        
     ctk.CTkButton(master=main,text="Add Entery",command=lambda:(show_frame(add_f),mess.lift()),).pack(pady = 10,side = "bottom")
     ctk.CTkButton(master=main,text="Remove Entery",command=lambda:(show_frame(remove_F),mess.lift()),).pack(pady = 0,side = "bottom")
     ctk.CTkButton(master=main,text="Show Entery",command=lambda:(show_frame(book),mess.lift()),).pack(pady = 10,side = "bottom")
@@ -238,18 +251,28 @@ if __name__ == "__main__":
             login_id.delete(0,"end")
             password.delete(0,"end")
 
+    def Delete_user():
+        ask =  messagebox.askyesno("","Do You want to Delete Account")
+        if ask:
+            db.delet_user(uid)
+            login_frame.lift()
+            login_mess.configure(text="Account Deleted successfully!", font=("Roboto", 15, "bold"))
+            login_id.delete(0,"end")
+            password.delete(0,"end")
+            main.lift()
+
     def restart_app():
         """Restart the application without closing the terminal."""
         python = sys.executable  # Get the Python interpreter path
         os.execl(python, python, *sys.argv)  # Restart the script
 
 
-
 # Add a Restart Button in your UI
-    btn_restart = ctk.CTkButton(master=main, text="Restart App", command=restart_app)
-    btn_restart.place(x = 40,y =10)
+    btn_restart = ctk.CTkButton(master=setting, text="Restart App", command=restart_app)
+    btn_restart.place(relx= 0.27 ,rely = 0.02)
     update()
     mess.lift()
+    main.lift()
     app.geometry("600x350")
     app.resizable(False,False)
     app.attributes("-topmost", True)

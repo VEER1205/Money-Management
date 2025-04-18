@@ -49,3 +49,8 @@ def user_exists(login_id):
 def get_total(uid):
     cus.execute("SELECT SUM(amount) FROM  entrys WHERE uid = %s",uid)
     return cus.fetchall()
+
+def delet_user(uid):
+    cus.execute("DELETE FROM User WHERE id = %s",(uid,))
+    conn.commit()
+
