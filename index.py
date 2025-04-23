@@ -1,8 +1,9 @@
 import customtkinter as ctk
 import database as db
 import os,sys
-from tkinter import messagebox
+from tkinter import messagebox,filedialog
 from PIL import Image
+import pandas as pd
 
 ctk.set_appearance_mode("system")
 if __name__ == "__main__":
@@ -32,9 +33,10 @@ if __name__ == "__main__":
 # setting 
     setting = ctk.CTkFrame(master=m, bg_color="transparent", fg_color="#333333", corner_radius=5)
     setting.place(x = 0, y = 0, relwidth=1, relheight=1 )
-
-    sett_i = ctk.CTkImage(light_image=Image.open("images/setting.png"), size=(20, 20))
-    home_i = ctk.CTkImage(light_image=Image.open("images/home.png"), size=(20, 20))
+    sett_i_path = os.path.join(os.path.dirname(__file__), 'images/setting.png')
+    home_i_path = os.path.join(os.path.dirname(__file__),'images/home.png')
+    sett_i = ctk.CTkImage(light_image=Image.open(sett_i_path), size=(20, 20))
+    home_i = ctk.CTkImage(light_image=Image.open(home_i_path), size=(20, 20))
 
     setting_button = ctk.CTkButton(master=main,text="",image=sett_i,height= 20,width=20,command= lambda : show_frame(setting))
     setting_button.place(relx = 0.05, rely = 0.02)
@@ -43,7 +45,18 @@ if __name__ == "__main__":
     home_button.place(relx = 0.05, rely = 0.02)
 
     delete_buttom = ctk.CTkButton(master=setting, text="Delete Account", command=lambda:Delete_user())
-    delete_buttom.pack(side = "bottom",pady = 10)
+    delete_buttom.pack(side = "bottom",pady = 10,padx = 10)
+
+    logout_buttom = ctk.CTkButton(master=setting, text="Logout", command=lambda:logout())
+    logout_buttom.pack(side = "bottom",pady = 1,padx = 10)
+
+    export_button = ctk.CTkButton(master=setting,text="Export to xlsx",command=lambda :export())
+    export_button.pack(side = "bottom",pady = 10,padx = 10)
+
+    import_button = ctk.CTkButton(master=setting,text="Import Data",command=lambda :import_data(a))
+    import_button.pack(side = "bottom",pady = 1,padx = 10)
+
+    
 
 # Login Frame
     login_frame = ctk.CTkFrame(master=app)
@@ -52,8 +65,10 @@ if __name__ == "__main__":
     login_id = ctk.CTkEntry(master=login_frame,width=150,height=30,placeholder_text="Enter The ID",font=("Roboto", 15,"bold"),justify="center")
     login_id.place(relx=0.5, rely=0.35, anchor="center") 
     
-    eye_open = ctk.CTkImage(light_image=Image.open("images/image.png"), size=(20, 20))
-    eye_closed = ctk.CTkImage(light_image=Image.open("images/eye-crossed.png"), size=(20, 20))
+    eye_open_path = os.path.join(os.path.dirname(__file__),'images/image.png')
+    eye_closed_path = os.path.join(os.path.dirname(__file__),'images/eye-crossed.png')
+    eye_open = ctk.CTkImage(light_image=Image.open(eye_open_path), size=(20, 20))
+    eye_closed = ctk.CTkImage(light_image=Image.open(eye_closed_path), size=(20, 20))
 
     login_mess = ctk.CTkLabel(master=login_frame,text="",font=("Roboto", 15,"bold"),width=150,height=30)
     login_mess.place(relx=0.5, rely=0.25, anchor="center") 
@@ -101,8 +116,8 @@ if __name__ == "__main__":
 
     remove_F = ctk.CTkFrame(master=content_frame, bg_color="#333333",fg_color="#333333",corner_radius=10)
     
-    table = ctk.CTkFrame(master=remove_F,border_width=1,border_color="gray",height=100,width=200)
-    table.pack(fill = "both",expand = True,pady = 5,padx = 3)
+    table = ctk.CTkFrame(master=remove_F,border_width=1,border_color="gray",height=100)
+    table.pack(expand = True,fill = "both",pady = 5,padx = 3)
     table.pack_propagate(False) 
 
     manu = ctk.CTkFrame(master=remove_F,height=250)
@@ -152,7 +167,7 @@ if __name__ == "__main__":
             ctk.CTkLabel(book, width=40, height=30, text=i+1).grid(row=i+1, column=0, padx=2)
             ctk.CTkLabel(book, width=210, height=30, text=en, anchor="w",wraplength=180).grid(row=i+1, column=1, padx=2)
             ctk.CTkLabel(book, width=90, height=30, text=am, anchor="e").grid(row=i+1, column=2, padx=2) 
-            total_amount += am
+            total_amount += float(am)
 
         total.configure(text = f"Balance = {total_amount}")    
     
@@ -219,8 +234,13 @@ if __name__ == "__main__":
             show.configure(image=eye_open)
 
     def logout():
-        login_frame.lift()
-
+        ask =  messagebox.askyesno("","Do You want to Logout")
+        if ask:
+            login_id.delete(0,"end")
+            password.delete(0,"end")
+            login_frame.lift()
+            main.lift()
+        
     def login():
         global uid  
         if login_id.get() == "" or password.get() == "":
@@ -255,17 +275,40 @@ if __name__ == "__main__":
         ask =  messagebox.askyesno("","Do You want to Delete Account")
         if ask:
             db.delet_user(uid)
-            login_frame.lift()
             login_mess.configure(text="Account Deleted successfully!", font=("Roboto", 15, "bold"))
             login_id.delete(0,"end")
             password.delete(0,"end")
+            login_frame.lift()
             main.lift()
+
+    def export():
+        df = pd.DataFrame(data = a,columns=("Details","Amount"))
+        df.index = range(1, len(df)+1)
+        filepath = filedialog.asksaveasfilename(defaultextension=".xlsx",filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")])
+        if filepath:
+            df.to_excel(filepath, index=False)  
+    
+    def import_data(a):
+        path = filedialog.askopenfilename(defaultextension=".xlsx",filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")])
+        if path:
+            try:
+                df = pd.read_excel(path,header=None)
+                data_list = list(map(tuple, df.values))
+
+                #Check if the imported data has the correct structure
+                if all(len(item) == 2 for item in data_list[1:]):
+                    a.extend(data_list[1:])
+                    update()
+                    main.lift()
+                else:
+                    messagebox.showerror("Import Error","The imported data must have two columns(Details, Amount)")
+            except Exception as e:
+                messagebox.showerror("Import Error",f"Error importing data: {str(e)}")
 
     def restart_app():
         """Restart the application without closing the terminal."""
         python = sys.executable  # Get the Python interpreter path
         os.execl(python, python, *sys.argv)  # Restart the script
-
 
 # Add a Restart Button in your UI
     btn_restart = ctk.CTkButton(master=setting, text="Restart App", command=restart_app)
