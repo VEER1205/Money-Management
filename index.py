@@ -4,7 +4,7 @@ import os,sys
 from tkinter import messagebox,filedialog
 from PIL import Image
 import pandas as pd
-
+ 
 ctk.set_appearance_mode("system")
 if __name__ == "__main__":
     app = ctk.CTk()
@@ -33,6 +33,7 @@ if __name__ == "__main__":
 # setting 
     setting = ctk.CTkFrame(master=m, bg_color="transparent", fg_color="#333333", corner_radius=5)
     setting.place(x = 0, y = 0, relwidth=1, relheight=1 )
+
     sett_i_path = os.path.join(os.path.dirname(__file__), 'images/setting.png')
     home_i_path = os.path.join(os.path.dirname(__file__),'images/home.png')
     sett_i = ctk.CTkImage(light_image=Image.open(sett_i_path), size=(20, 20))
@@ -62,28 +63,31 @@ if __name__ == "__main__":
     login_frame = ctk.CTkFrame(master=app)
     login_frame.place(x=0, y=0, relwidth=1, relheight=1)
 
-    login_id = ctk.CTkEntry(master=login_frame,width=150,height=30,placeholder_text="Enter The ID",font=("Roboto", 15,"bold"),justify="center")
-    login_id.place(relx=0.5, rely=0.35, anchor="center") 
+    login_id = ctk.CTkEntry(master=login_frame,width=200,height=40,placeholder_text="Enter The ID",placeholder_text_color="gray70",font=("Roboto", 15,"bold"),justify="center")
+    login_id.place(relx=0.5, rely=0.40, anchor="center") 
     
     eye_open_path = os.path.join(os.path.dirname(__file__),'images/image.png')
     eye_closed_path = os.path.join(os.path.dirname(__file__),'images/eye-crossed.png')
     eye_open = ctk.CTkImage(light_image=Image.open(eye_open_path), size=(20, 20))
     eye_closed = ctk.CTkImage(light_image=Image.open(eye_closed_path), size=(20, 20))
 
+    login_lable = ctk.CTkLabel(master=login_frame,text="Login",font=("Roboto", 35,"bold"))
+    login_lable.place(relx=0.5, rely=0.165, anchor="center")
+
     login_mess = ctk.CTkLabel(master=login_frame,text="",font=("Roboto", 15,"bold"),width=150,height=30)
-    login_mess.place(relx=0.5, rely=0.25, anchor="center") 
+    login_mess.place(relx=0.5, rely=0.27, anchor="center") 
 
-    login_button = ctk.CTkButton(master=login_frame,text="Login",width=60,height=30,border_color="gray",corner_radius=5,command=lambda:(login()),font=("Roboto", 15,"bold"))
-    login_button.place(relx=0.42, rely=0.65, anchor="center") 
+    login_button = ctk.CTkButton(master=login_frame,text="Login",width=100,height=30,border_color="gray",corner_radius=5,command=lambda:(login()),font=("Roboto", 15,"bold"))
+    login_button.place(relx=0.5, rely=0.7142, anchor="center") 
 
-    password = ctk.CTkEntry(master=login_frame,width=150,height=30,placeholder_text="PASSWORD",show = "*",font=("Roboto", 15,"bold"),justify="center")
-    password.place(relx=0.5, rely=0.5, anchor="center")
+    password = ctk.CTkEntry(master=login_frame,width=200,height=40,placeholder_text="PASSWORD",show = "*",font=("Roboto", 15,"bold"),justify="center")
+    password.place(relx=0.5, rely=0.5428, anchor="center")
 
-    new_user = ctk.CTkButton(master=login_frame,text="Sign Up",width=60,height=30,border_color="gray",corner_radius=5,command=lambda:(New_user()),font=("Roboto", 15,"bold"))
-    new_user.place(relx=0.57, rely=0.65, anchor="center") 
+    new_user = ctk.CTkButton(master=login_frame,text="Sign Up",width=85,height=35,border_color="gray",corner_radius=5,command=lambda:(New_user()),font=("Roboto", 15,"bold"))
+    new_user.place(relx=0.5, rely=0.84, anchor="center") 
 
-    show = ctk.CTkButton(master= login_frame,text="",image=eye_open,fg_color="transparent",hover_color="#333333",width=20,height=30,command=lambda: show_password())
-    show.place(relx=0.66, rely=0.5, anchor="center") 
+    show = ctk.CTkButton(master= login_frame,text="",image=eye_open,fg_color="transparent",hover_color="#333333",width=30,height=40,command=lambda: show_password())
+    show.place(relx=0.7, rely=0.55, anchor="center") 
 
 
 # For Adding The Entery 
@@ -139,7 +143,8 @@ if __name__ == "__main__":
 
 # For Viwe All Entery
 
-    book = ctk.CTkScrollableFrame(master=content_frame,bg_color="#333333",fg_color="#333333",border_color="gray",border_width=1,scrollbar_button_color="#333333")
+    book = ctk.CTkScrollableFrame(master=content_frame,bg_color="#333333",fg_color="#333333",border_color="gray",border_width=1,orientation="vertical")
+
     ctk.CTkLabel(book, width=40, height=30, corner_radius=5, fg_color="gray", text="In.").grid(row = 0,column = 0,padx = 2,pady = 0)
     ctk.CTkLabel(book, width=210, height=30, corner_radius=5, fg_color="gray", text="Details").grid(row = 0,column = 1,padx = 2,pady =0)
     ctk.CTkLabel(book, width=90, height=30, corner_radius=5, fg_color="gray", text="Amount").grid(row = 0,column = 2,padx = 2,pady = 0)
@@ -165,11 +170,16 @@ if __name__ == "__main__":
         total_amount = 0
         for i, (en, am) in enumerate(a):
             ctk.CTkLabel(book, width=40, height=30, text=i+1).grid(row=i+1, column=0, padx=2)
-            ctk.CTkLabel(book, width=210, height=30, text=en, anchor="w",wraplength=180).grid(row=i+1, column=1, padx=2)
-            ctk.CTkLabel(book, width=90, height=30, text=am, anchor="e").grid(row=i+1, column=2, padx=2) 
+            ctk.CTkLabel(book, width=210, height=30, text=en, anchor="w",wraplength=150).grid(row=i+1, column=1, padx=2)
+            ctk.CTkLabel(book, width=90, height=30, text=round(am,2), anchor="e").grid(row=i+1, column=2, padx=2) 
+            book.grid_rowconfigure(i+1, weight=0)
+
             total_amount += float(am)
 
-        total.configure(text = f"Balance = {total_amount}")    
+        for j in range(3):
+            frame.grid_columnconfigure(j, weight=0)    
+
+        total.configure(text = f"Balance = {round(total_amount,2)}")    
     
     def remove():
         if index_in.get() == "":
@@ -292,12 +302,14 @@ if __name__ == "__main__":
         path = filedialog.askopenfilename(defaultextension=".xlsx",filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")])
         if path:
             try:
-                df = pd.read_excel(path,header=None)
-                data_list = list(map(tuple, df.values))
+                df1 = pd.read_excel(path)
+                df = df1[["Details", "Amount"]].values.tolist()
+                data_list = list(map(tuple, df))
 
                 #Check if the imported data has the correct structure
-                if all(len(item) == 2 for item in data_list[1:]):
+                if all(len(item) == 2 for item in data_list[1:]) and (data_list not in a):
                     a.extend(data_list[1:])
+                    db.add_data_multiple(uid,a)
                     update()
                     main.lift()
                 else:
@@ -313,6 +325,8 @@ if __name__ == "__main__":
 # Add a Restart Button in your UI
     btn_restart = ctk.CTkButton(master=setting, text="Restart App", command=restart_app)
     btn_restart.place(relx= 0.27 ,rely = 0.02)
+    btn_restart1 = ctk.CTkButton(master=login_frame, text="Restart App", command=restart_app)
+    btn_restart1.place(x =5 , y =5)
     update()
     mess.lift()
     main.lift()

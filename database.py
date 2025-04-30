@@ -2,7 +2,6 @@ from mysql import connector
 import os
 from dotenv import load_dotenv
 
-
 # Load the .env file
 load_dotenv()
 
@@ -37,6 +36,11 @@ def load_data(uid):
 def add_data(uid,entry,amount):
     cus.execute("INSERT INTO entrys (user_id, entry, amount) VALUES (%s, %s, %s)", (uid,entry, amount))
     conn.commit()
+
+def add_data_multiple(uid,a):
+    for (entry, amount) in a:
+        cus.execute("INSERT INTO entrys (user_id, entry, amount) VALUES (%s, %s, %s)", (uid,entry, amount))
+        conn.commit()
 
 def delet_data(uid,entry):
     cus.execute("DELETE FROM entrys WHERE user_id = %s AND entry = %s", (uid, entry))
