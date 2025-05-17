@@ -4,6 +4,7 @@ import os,sys
 from tkinter import messagebox,filedialog
 from PIL import Image
 import pandas as pd
+import re
  
 ctk.set_appearance_mode("system")
 if __name__ == "__main__":
@@ -12,6 +13,7 @@ if __name__ == "__main__":
     app.title("Money Management")
     main_frame = ctk.CTkFrame(master=app) 
     main_frame.place(x=0, y=0, relwidth=1, relheight=1)
+    
     a = []
 
 # Main Frame  
@@ -22,27 +24,29 @@ if __name__ == "__main__":
     content_frame.pack(side="right", expand=False, fill="y", padx=5, pady=5)
         
     main = ctk.CTkFrame(master=m,fg_color="#333333",corner_radius=5)
-    main.place(x = 0, y = 0, relwidth=1, relheight=1 )
+    main.place(x = 0, y = 0, relwidth=1, relheight=1)
 
     mess = ctk.CTkLabel(master=main,text="Welcome\nTo\nApp",width=185,height=120,font=("Roboto", 23,"bold"),)
     mess.place(relx = 0.5,rely=0.35, anchor="center")
 
+    total_frame = ctk.CTkScrollableFrame(master=main,orientation='horizontal',height=30,width=185)
     total = ctk.CTkLabel(master = main,text="Balance = 0",anchor="w",height=30,font=("Roboto", 17,"bold"))
-    total.place(relx=0.5, rely=0.58, anchor="center") 
+    total.place(relx=0.5, rely=0.58, anchor="center")
+    
 
 # setting 
     setting = ctk.CTkFrame(master=m, bg_color="transparent", fg_color="#333333", corner_radius=5)
-    setting.place(x = 0, y = 0, relwidth=1, relheight=1 )
+    # setting.place(x = 0, y = 0, relwidth=1, relheight=1 )
 
     sett_i_path = os.path.join(os.path.dirname(__file__), 'images/setting.png')
     home_i_path = os.path.join(os.path.dirname(__file__),'images/home.png')
     sett_i = ctk.CTkImage(light_image=Image.open(sett_i_path), size=(20, 20))
     home_i = ctk.CTkImage(light_image=Image.open(home_i_path), size=(20, 20))
 
-    setting_button = ctk.CTkButton(master=main,text="",image=sett_i,height= 20,width=20,command= lambda : show_frame(setting))
+    setting_button = ctk.CTkButton(master=main,text="",image=sett_i,height= 20,width=20,command= lambda : left_show_frame(main,setting))
     setting_button.place(relx = 0.05, rely = 0.02)
 
-    home_button = ctk.CTkButton(master=setting,text="",image=home_i,height= 20,width=20,command= lambda : show_frame(main))
+    home_button = ctk.CTkButton(master=setting,text="",image=home_i,height= 20,width=20,command= lambda : left_show_frame(setting,main))
     home_button.place(relx = 0.05, rely = 0.02)
 
     delete_buttom = ctk.CTkButton(master=setting, text="Delete Account", command=lambda:Delete_user())
@@ -63,31 +67,36 @@ if __name__ == "__main__":
     login_frame = ctk.CTkFrame(master=app)
     login_frame.place(x=0, y=0, relwidth=1, relheight=1)
 
-    login_id = ctk.CTkEntry(master=login_frame,width=200,height=40,placeholder_text="Enter The ID",placeholder_text_color="gray70",font=("Roboto", 15,"bold"),justify="center")
-    login_id.place(relx=0.5, rely=0.40, anchor="center") 
+    login_page = ctk.CTkFrame(master = login_frame,width=250,height=300,border_width=2,border_color="gray",fg_color="transparent")
+    login_page.place(rely = 0.5,relx = 0.5,anchor = "center")
+
+    login_lable = ctk.CTkLabel(master=login_frame,text="Login",font=("Roboto", 35,"bold"))
+    login_lable.place(relx=0.5, rely=0.05, anchor="center")
+
+    login_mess = ctk.CTkLabel(master=login_page,text="",text_color="gray",font=("Roboto", 15,"bold"),width=150,height=30)
+    login_mess.place(relx=0.5, rely=0.1, anchor="center") 
+
+    ctk.CTkLabel(master=login_page,text = "Login ID: ",font=("Roboto", 15,"bold")).place(relx=0.24, rely=0.19, anchor="center")
+    login_id = ctk.CTkEntry(master=login_page,width=200,height=40,placeholder_text="",placeholder_text_color="gray70",font=("Roboto", 15,"bold"),justify="center")
+    login_id.place(relx=0.5, rely=0.30, anchor="center") 
     
+    ctk.CTkLabel(master=login_page,text = "Password: ",font=("Roboto", 15,"bold")).place(relx=0.24, rely=0.425, anchor="center")
+    password = ctk.CTkEntry(master=login_page,width=170,height=40,placeholder_text="",show = "*",font=("Roboto", 15,"bold"),justify="center")
+    password.place(relx=0.44, rely=0.55, anchor="center")
+
     eye_open_path = os.path.join(os.path.dirname(__file__),'images/image.png')
     eye_closed_path = os.path.join(os.path.dirname(__file__),'images/eye-crossed.png')
     eye_open = ctk.CTkImage(light_image=Image.open(eye_open_path), size=(20, 20))
     eye_closed = ctk.CTkImage(light_image=Image.open(eye_closed_path), size=(20, 20))
-
-    login_lable = ctk.CTkLabel(master=login_frame,text="Login",font=("Roboto", 35,"bold"))
-    login_lable.place(relx=0.5, rely=0.165, anchor="center")
-
-    login_mess = ctk.CTkLabel(master=login_frame,text="",font=("Roboto", 15,"bold"),width=150,height=30)
-    login_mess.place(relx=0.5, rely=0.27, anchor="center") 
-
-    login_button = ctk.CTkButton(master=login_frame,text="Login",width=100,height=30,border_color="gray",corner_radius=5,command=lambda:(login()),font=("Roboto", 15,"bold"))
+    
+    login_button = ctk.CTkButton(master=login_page,text="Login",width=100,height=30,border_color="gray",corner_radius=5,command=lambda:(login()),font=("Roboto", 15,"bold"))
     login_button.place(relx=0.5, rely=0.7142, anchor="center") 
 
-    password = ctk.CTkEntry(master=login_frame,width=200,height=40,placeholder_text="PASSWORD",show = "*",font=("Roboto", 15,"bold"),justify="center")
-    password.place(relx=0.5, rely=0.5428, anchor="center")
+    new_user = ctk.CTkButton(master=login_frame,text="Sign Up",width=85,height=35,border_color="gray",corner_radius=5,command=lambda:(New_user(),app.focus()),font=("Roboto", 15,"bold"),fg_color="transparent",hover_color="#4E8F69")
+    new_user.place(relx=0.5, rely=0.8, anchor="center") 
 
-    new_user = ctk.CTkButton(master=login_frame,text="Sign Up",width=85,height=35,border_color="gray",corner_radius=5,command=lambda:(New_user()),font=("Roboto", 15,"bold"))
-    new_user.place(relx=0.5, rely=0.84, anchor="center") 
-
-    show = ctk.CTkButton(master= login_frame,text="",image=eye_open,fg_color="transparent",hover_color="#333333",width=30,height=40,command=lambda: show_password())
-    show.place(relx=0.7, rely=0.55, anchor="center") 
+    show = ctk.CTkButton(master= login_frame,text="",image=eye_open,fg_color="transparent",hover_color="#333333",width=20,height=20,command=lambda: show_password())
+    show.place(relx=0.69, rely=0.54, anchor="e") 
 
 
 # For Adding The Entery 
@@ -142,8 +151,9 @@ if __name__ == "__main__":
 
 
 # For Viwe All Entery
-
+    # book = Widgets.ScrollableFrame(app)
     book = ctk.CTkScrollableFrame(master=content_frame,bg_color="#333333",fg_color="#333333",border_color="gray",border_width=1,orientation="vertical")
+    current_frame = {"current":"book"}
 
     ctk.CTkLabel(book, width=40, height=30, corner_radius=5, fg_color="gray", text="In.").grid(row = 0,column = 0,padx = 2,pady = 0)
     ctk.CTkLabel(book, width=210, height=30, corner_radius=5, fg_color="gray", text="Details").grid(row = 0,column = 1,padx = 2,pady =0)
@@ -151,12 +161,10 @@ if __name__ == "__main__":
 
 
 # The Main Logic 
-
-    for frame in (add_f, book, remove_F):
+    for frame in (book,add_f,remove_F):
         frame.place(x=0,y = 0, relwidth=1, relheight=1)
-    add_f.pack_propagate(False)
-    book.pack_propagate(False)    
-    
+        frame.pack_propagate(False)
+
     def update():
         # Remove only old data (skip headers)
         for widget in book.winfo_children()[3:]:
@@ -176,10 +184,14 @@ if __name__ == "__main__":
 
             total_amount += float(am)
 
-        for j in range(3):
-            frame.grid_columnconfigure(j, weight=0)    
-
-        total.configure(text = f"Balance = {round(total_amount,2)}")    
+        # for j in range(3):
+        #     frame.grid_columnconfigure(j, weight=0)  
+        # total.configure(state="normal")
+        # total.delete("0.0", "end")      
+        # total.insert("0.0", f"Balance = {round(total_amount,2)}")
+        # total.configure(state="disabled")
+        # total.configure(text = f"Balance = {round(total_amount,2)}")
+        total.configure(text = f"Balance = {round(total_amount,2)}")       
     
     def remove():
         if index_in.get() == "":
@@ -229,6 +241,10 @@ if __name__ == "__main__":
         if frame in [add_f,remove_F,book]:
             mess.configure(text = "Welcome\nTo\nApp",font = ("Roboto", 20,"bold"))
         frame.lift()
+
+    def left_show_frame(frame1,frame2):
+        frame1.place_forget()
+        frame2.place(x = 0, y = 0, relwidth=1, relheight=1)
         
     ctk.CTkButton(master=main,text="Add Entery",command=lambda:(show_frame(add_f),mess.lift()),).pack(pady = 10,side = "bottom")
     ctk.CTkButton(master=main,text="Remove Entery",command=lambda:(show_frame(remove_F),mess.lift()),).pack(pady = 0,side = "bottom")
@@ -252,7 +268,8 @@ if __name__ == "__main__":
             main.lift()
         
     def login():
-        global uid  
+        global uid 
+        app.focus() 
         if login_id.get() == "" or password.get() == "":
            pass
         else:
