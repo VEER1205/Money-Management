@@ -4,6 +4,7 @@ import os,sys
 from tkinter import messagebox,filedialog
 from PIL import Image
 import pandas as pd
+import threading
 
 class app(ctk.CTk):
     def __init__(self):
@@ -24,6 +25,13 @@ class app(ctk.CTk):
         self.content_frame = ctk.CTkFrame(master=self.main_frame,width=400,height=330, bg_color="transparent", fg_color="transparent", corner_radius=5,border_color="gray")
         self.content_frame.pack(side="right", expand=False, fill="y", padx=5, pady=5)
 
+        # importing Images
+        self.eye_open_path = os.path.join(os.path.dirname(__file__),'images/image.png')
+        self.eye_closed_path = os.path.join(os.path.dirname(__file__),'images/eye-crossed.png')
+        self.eye_open = ctk.CTkImage(light_image=Image.open(self.eye_open_path), size=(20, 20))
+        self.eye_closed = ctk.CTkImage(light_image=Image.open(self.eye_closed_path), size=(20, 20))
+
+        # Create Frame Object
         self.Login_Frame = login_frame(self,controller=self)
         self.Setting_Frame = setting_frame(self.m,controller=self)
         self.Manu_Frame = manu_frame(self.m,controller=self)
@@ -35,6 +43,7 @@ class app(ctk.CTk):
         self.Manu_Frame.mess.lift()
         self.show_frame(self.Book)
         self.show_frame(self.Manu_Frame)
+        self.show_frame(self.Login_Frame)
         
     def login(self):
         if self.Login_Frame.login_id.get() == "" or self.Login_Frame.password.get() == "":
@@ -61,20 +70,20 @@ class app(ctk.CTk):
         
         else:
             db.create_user(self.Login_Frame.login_id.get(),self.Login_Frame.password.get())
-            self.Login_Frame.login_mess.configure(text="Account created successfully!", font=("Roboto", 15, "bold"))
+            self.Login_Frame.login_mess.configure(text="Account created successfully!", font=("Roboto", 20, "bold"))
             self.Login_Frame.login_id.delete(0,"end")
             self.Login_Frame.password.delete(0,"end")
 
-    def show_password(self):
-        if self.Login_Frame.password.cget("show") == "*":
-            self.Login_Frame.password.configure(show="")
-            self.Login_Frame.show.configure(image=self.Login_Frame.eye_closed)  
+    def show_password(self,Frame):
+        if Frame.password.cget("show") == "*":
+            Frame.password.configure(show="",font = ("Roboto", 15,"bold"))
+            Frame.show.configure(image=self.eye_closed)  
         else:
-            self.Login_Frame.password.configure(show="*")
-            self.Login_Frame.show.configure(image=self.Login_Frame.eye_open)
+            Frame.password.configure(show="*",font = ("Roboto", 20,"bold"))
+            Frame.show.configure(image=self.eye_open)
 
     def place_frame(self):
-        for frame in (self.Book,self.Add_Frame,self.Remove_Frame,self.Manu_Frame,self.Setting_Frame):
+        for frame in (self.Book,self.Add_Frame,self.Remove_Frame,self.Manu_Frame,self.Setting_Frame,self.Singup_Frame):
             frame.place(x=0,y = 0, relwidth=1, relheight=1)
             frame.pack_propagate(False)
 
@@ -119,7 +128,7 @@ class app(ctk.CTk):
                 self.Manu_Frame.mess.configure(text = "Entry Removed!",font=("Roboto", 23,"bold"))
                 self.update()
                 self.Remove_Frame.index_in.delete(0,"end") 
-                app.focus()
+                self.focus()
             except:
                 self.Manu_Frame.mess.configure(text = "Invalid\nSelection!",font = ("Roboto", 20,"bold"))
                 self.Remove_Frame.index_in.delete(0,"end") 
@@ -206,7 +215,7 @@ class login_frame(ctk.CTkFrame):
         self.login_page.place(rely = 0.5,relx = 0.5,anchor = "center")
 
         self.login_lable = ctk.CTkLabel(master=self,text="Login",font=("Roboto", 35,"bold"))
-        self.login_lable.place(relx=0.5, rely=0.05, anchor="center")
+        self.login_lable.place(relx=0.5, rely=0.07, anchor="center")
 
         self.login_mess = ctk.CTkLabel(master=self.login_page,text="",text_color="gray",font=("Roboto", 15,"bold"),width=150,height=30)
         self.login_mess.place(relx=0.5, rely=0.1, anchor="center")
@@ -219,24 +228,49 @@ class login_frame(ctk.CTkFrame):
         self.password = ctk.CTkEntry(master=self.login_page,width=170,height=40,placeholder_text="",show = "*",font=("Roboto", 15,"bold"),justify="center")
         self.password.place(relx=0.44, rely=0.55, anchor="center")
 
-        self.eye_open_path = os.path.join(os.path.dirname(__file__),'images/image.png')
-        self.eye_closed_path = os.path.join(os.path.dirname(__file__),'images/eye-crossed.png')
-        self.eye_open = ctk.CTkImage(light_image=Image.open(self.eye_open_path), size=(20, 20))
-        self.eye_closed = ctk.CTkImage(light_image=Image.open(self.eye_closed_path), size=(20, 20))
-
         self.login_button = ctk.CTkButton(master=self.login_page,text="Login",width=100,height=30,border_color="gray",corner_radius=5,command=lambda:(self.controller.login()),font=("Roboto", 15,"bold"))
         self.login_button.place(relx=0.5, rely=0.7142, anchor="center")
 
-        self.new_user = ctk.CTkButton(master=self.login_page,text="Sign Up",width=85,height=35,border_color="gray",corner_radius=5,command=lambda:(self.controller.New_user()),font=("Roboto", 15,"bold"),fg_color="transparent",hover_color="#4E8F69")
+        self.new_user = ctk.CTkButton(master=self.login_page,text="Sign Up",width=85,height=35,border_color="gray",corner_radius=5,command=lambda:(self.controller.show_frame(self.controller.Singup_Frame)),font=("Roboto", 15,"bold"),fg_color="transparent",hover_color="#4E8F69")
         self.new_user.place(relx=0.5, rely=0.85, anchor="center") 
 
-        self.show = ctk.CTkButton(master= self.login_page,text="",image=self.eye_open,fg_color="transparent",hover_color="#333333",width=20,height=20,command=lambda: self.controller.show_password())
+        self.show = ctk.CTkButton(master= self.login_page,text="",image=self.controller.eye_open,fg_color="transparent",hover_color="#333333",width=20,height=20,command=lambda: self.controller.show_password(self.controller.Login_Frame))
         self.show.place(relx=.95, rely=0.54, anchor="e") 
 
 class singup_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
         super().__init__(master)
         self.controller = controller
+
+        self.login_page = ctk.CTkFrame(master = self,width=450,height=300,border_width=2,border_color="gray",fg_color="transparent")
+        self.login_page.place(rely = 0.5,relx = 0.5,anchor = "center")
+
+        self.login_lable = ctk.CTkLabel(master=self,text="Sign Up",font=("Roboto", 35,"bold"))
+        self.login_lable.place(relx=0.5, rely=0.07, anchor="center")
+
+        ctk.CTkLabel(self.login_page,text = "Email ID:",font=("Roboto", 15,"bold"),bg_color="transparent").place(relx = 0.05,rely = 0.1)
+        self.email = ctk.CTkEntry(master=self.login_page,width=180,height=40,placeholder_text="",placeholder_text_color="gray70",font=("Roboto", 15,"bold"),justify="center")
+        self.email.place(relx=0.25, rely=0.25, anchor="center")
+
+        ctk.CTkLabel(self.login_page,text = "Login ID:",font=("Roboto", 15,"bold"),bg_color="transparent",fg_color="transparent").place(relx = 0.05,rely = 0.35)
+        self.login_id = ctk.CTkEntry(master=self.login_page,width=180,height=40,placeholder_text="",placeholder_text_color="gray70",font=("Roboto", 15,"bold"),justify="center")
+        self.login_id.place(relx=0.25, rely=0.50, anchor="center")
+
+        ctk.CTkLabel(self.login_page,text = "Password:",font=("Roboto", 15,"bold"),bg_color="transparent",fg_color="transparent").place(relx = 0.05,rely = 0.6)
+        self.password = ctk.CTkEntry(master=self.login_page,width=180,height=40,placeholder_text="",show = "*",font=("Roboto", 20,"bold"))
+        self.password.place(relx=0.25, rely=0.75, anchor="center")
+
+        self.show = ctk.CTkButton(master= self.login_page,text="",image=self.controller.eye_open,bg_color="#343638",fg_color="#343638",width=20,height=20,command=lambda: (self.controller.show_password(self.controller.Singup_Frame)))
+        self.show.place(relx=.43, rely=0.75, anchor="e") 
+
+        self.register_button = ctk.CTkButton(self.login_page,width=150,height=35,text="Sign Up",font=("Roboto",20,"bold"))
+        self.register_button.place(relx = 0.6,rely = 0.3)
+
+        self.login_button = ctk.CTkButton(self.login_page,width=150,height=35,text="Login",font=("Roboto",20,"bold"),command=lambda:(self.controller.show_frame(self.controller.Login_Frame)))
+        self.login_button.place(relx = 0.6,rely = 0.5)
+
+        ctk.CTkFrame(self.login_page,width=5,height=260,border_width=1,corner_radius=0,bg_color="white",border_color="gray",fg_color="gray").place(rely = 0.5,relx = 0.53,anchor = "center")
+        
 
 class setting_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
@@ -313,7 +347,7 @@ class add_frame(ctk.CTkFrame):
         self.cke = ctk.CTkCheckBox(self,width=40,height=40,checkbox_height=20,checkbox_width=20,text="IF CASH IS ADD")
         self.cke.place(x = 136,y = 190)
 
-        self.sumbmit = ctk.CTkButton(self,width=100,height=30,text="Add",command= lambda:self.controller.Check_not_empty())
+        self.sumbmit = ctk.CTkButton(self,width=100,height=30,text="Add",command= lambda:threading.Thread(self.controller.Check_not_empty()))
         self.sumbmit.place(x = 145,y = 240)
 
 class remove_frame(ctk.CTkFrame):
