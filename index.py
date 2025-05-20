@@ -5,6 +5,8 @@ from tkinter import messagebox,filedialog
 from PIL import Image
 import pandas as pd
 import threading
+import dns.resolver
+import re
 
 class app(ctk.CTk):
     def __init__(self):
@@ -14,6 +16,7 @@ class app(ctk.CTk):
         self.geometry("600x350")
         ctk.set_default_color_theme("themes/marsh.json")
         self.title("Money Management")
+        self.bind("")
 
         self.data = []
         self.uid = None
@@ -62,17 +65,16 @@ class app(ctk.CTk):
                     self.Login_Frame.login_mess.configure(text="No account found!", font=("Roboto", 15, "bold"))
 
     def New_user(self):
-        if db.user_exists(self.Login_Frame.login_id.get()):
-            self.Login_Frame.login_mess.configure(text="Account already exists!", font=("Roboto", 15, "bold"))
-        
-        elif self.Login_Frame.login_id.get() == "" or self.Login_Frame.password.get() == "":
+        if self.Login_Frame.login_id.get() == "" or self.Login_Frame.password.get() == "":
             pass
         
         else:
             db.create_user(self.Login_Frame.login_id.get(),self.Login_Frame.password.get())
+            self.Login_Frame.lift()
             self.Login_Frame.login_mess.configure(text="Account created successfully!", font=("Roboto", 20, "bold"))
             self.Login_Frame.login_id.delete(0,"end")
             self.Login_Frame.password.delete(0,"end")
+            self.reset_signup()
 
     def show_password(self,Frame):
         if Frame.password.cget("show") == "*":
@@ -203,8 +205,45 @@ class app(ctk.CTk):
     def restart_app(self):
         """Restart the application without closing the terminal."""
         self.python = sys.executable  # Get the Python interpreter path
-        os.execl(self.python, self.python, *sys.argv)  # Restart the script                   
+        os.execl(self.python, self.python, *sys.argv)  # Restart the script   
 
+    def is_valid_email(self,email):
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return re.match(pattern, email) is not None
+
+    def domain_has_mx(self,domain):
+        try:
+            records = dns.resolver.resolve(domain, 'MX')
+            return len(records) > 0
+        except:
+            return False
+
+    def check_email(self,email):
+        if not self.is_valid_email(email):
+            self.Singup_Frame.email_lable.configure(text = "Email ID: Invalid")
+            self.Singup_Frame.email.configure(border_color = "red")
+            return 
+        domain = email.split('@')[1]
+        if not self.domain_has_mx(domain):
+            self.Singup_Frame.email_lable.configure(text = "Email ID: Invalid")
+        self.Singup_Frame.email_lable.configure(text = "Email ID:")  
+        self.Singup_Frame.email.configure(border_color = "gray")   
+
+    def vaild_user(self):
+        if db.user_exists(self.Singup_Frame.login_id.get()):
+            self.Singup_Frame.login_id_lable.configure(text="Account already exists!", font=("Roboto", 13, "bold")) 
+            return
+        self.Singup_Frame.login_id_lable.configure(text="Login ID:", font=("Roboto", 15, "bold"))
+
+    def reset_signup(self):
+        self.Singup_Frame.login_id.delete(0,"end")
+        self.Singup_Frame.email.delete(0,"end")
+        self.Singup_Frame.password.delete(0,"end")
+        self.Singup_Frame.login_id_lable.configure(text="Login ID:", font=("Roboto", 15, "bold"))    
+        self.Singup_Frame.email_lable.configure(text = "Email ID:")  
+        self.Singup_Frame.email.configure(border_color = "#565b5e") 
+        self.focus()
+                
 class login_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
         super().__init__(master)
@@ -248,13 +287,20 @@ class singup_frame(ctk.CTkFrame):
         self.login_lable = ctk.CTkLabel(master=self,text="Sign Up",font=("Roboto", 35,"bold"))
         self.login_lable.place(relx=0.5, rely=0.07, anchor="center")
 
-        ctk.CTkLabel(self.login_page,text = "Email ID:",font=("Roboto", 15,"bold"),bg_color="transparent").place(relx = 0.05,rely = 0.1)
+        self.signup_mess = ctk.CTkLabel(master=self.login_page,text="",text_color="gray",font=("Roboto", 20,"bold"),width=150,height=35,anchor="center")
+        self.signup_mess.place(relx = 0.6,rely = 0.1)
+
+        self.email_lable = ctk.CTkLabel(self.login_page,text = "Email ID:",font=("Roboto", 15,"bold"),bg_color="transparent")
+        self.email_lable.place(relx = 0.05,rely = 0.1)
         self.email = ctk.CTkEntry(master=self.login_page,width=180,height=40,placeholder_text="",placeholder_text_color="gray70",font=("Roboto", 15,"bold"),justify="center")
         self.email.place(relx=0.25, rely=0.25, anchor="center")
+        self.email.bind("<FocusOut>",lambda ev:self.controller.check_email(self.email.get()))
 
-        ctk.CTkLabel(self.login_page,text = "Login ID:",font=("Roboto", 15,"bold"),bg_color="transparent",fg_color="transparent").place(relx = 0.05,rely = 0.35)
+        self.login_id_lable = ctk.CTkLabel(self.login_page,text = "Login ID:",font=("Roboto", 15,"bold"),bg_color="transparent",fg_color="transparent")
+        self.login_id_lable.place(relx = 0.05,rely = 0.35)
         self.login_id = ctk.CTkEntry(master=self.login_page,width=180,height=40,placeholder_text="",placeholder_text_color="gray70",font=("Roboto", 15,"bold"),justify="center")
         self.login_id.place(relx=0.25, rely=0.50, anchor="center")
+        self.login_id.bind("<FocusOut>",lambda ev:self.controller.vaild_user())
 
         ctk.CTkLabel(self.login_page,text = "Password:",font=("Roboto", 15,"bold"),bg_color="transparent",fg_color="transparent").place(relx = 0.05,rely = 0.6)
         self.password = ctk.CTkEntry(master=self.login_page,width=180,height=40,placeholder_text="",show = "*",font=("Roboto", 20,"bold"))
@@ -266,12 +312,11 @@ class singup_frame(ctk.CTkFrame):
         self.register_button = ctk.CTkButton(self.login_page,width=150,height=35,text="Sign Up",font=("Roboto",20,"bold"))
         self.register_button.place(relx = 0.6,rely = 0.3)
 
-        self.login_button = ctk.CTkButton(self.login_page,width=150,height=35,text="Login",font=("Roboto",20,"bold"),command=lambda:(self.controller.show_frame(self.controller.Login_Frame)))
+        self.login_button = ctk.CTkButton(self.login_page,width=150,height=35,text="Login",font=("Roboto",20,"bold"),command=lambda:(self.controller.show_frame(self.controller.Login_Frame),self.controller.reset_signup()))
         self.login_button.place(relx = 0.6,rely = 0.5)
 
-        ctk.CTkFrame(self.login_page,width=5,height=260,border_width=1,corner_radius=0,bg_color="white",border_color="gray",fg_color="gray").place(rely = 0.5,relx = 0.53,anchor = "center")
+        ctk.CTkFrame(self.login_page,width=5,height=260,border_width=1,corner_radius=0,bg_color="gray",border_color="gray",fg_color="gray").place(rely = 0.5,relx = 0.53,anchor = "center")
         
-
 class setting_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
         super().__init__(master, fg_color="#333333",corner_radius=5)

@@ -15,5 +15,5 @@ CREATE TABLE IF NOT EXISTS entrys (
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE
 );
 
-
-
+ALTER TABLE User ADD COLUMN email varchar(30);
+SELECT * FROM User;
