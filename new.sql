@@ -17,3 +17,6 @@ CREATE TABLE IF NOT EXISTS entrys (
 
 ALTER TABLE User ADD COLUMN email varchar(30);
 SELECT * FROM User;
+select * from entrys;
+delete from User where name = 'veer';
+

@@ -25,8 +25,8 @@ def get_user(login_id,password):
     u = cus.fetchone()
     return u[0] if u else None
 
-def create_user(loing_id,password):
-    cus.execute("INSERT INTO User (name,pass) VALUES (%s,%s)",(loing_id,password))
+def create_user(loing_id,password,email):
+    cus.execute("INSERT INTO User (name,pass,email) VALUES (%s,%s,%s)",(loing_id,password,email))
     conn.commit()
 
 def load_data(uid):

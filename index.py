@@ -65,13 +65,12 @@ class app(ctk.CTk):
                     self.Login_Frame.login_mess.configure(text="No account found!", font=("Roboto", 15, "bold"))
 
     def New_user(self):
-        if self.Login_Frame.login_id.get() == "" or self.Login_Frame.password.get() == "":
+        if self.Singup_Frame.login_id.get() == "" or self.Singup_Frame.password.get() == "":
             pass
-        
         else:
-            db.create_user(self.Login_Frame.login_id.get(),self.Login_Frame.password.get())
+            db.create_user(self.Singup_Frame.login_id.get(),self.Singup_Frame.password.get(),self.Singup_Frame.email.get())
             self.Login_Frame.lift()
-            self.Login_Frame.login_mess.configure(text="Account created successfully!", font=("Roboto", 20, "bold"))
+            self.Login_Frame.login_mess.configure(text="Account created successfully!", font=("Roboto", 15, "bold"))
             self.Login_Frame.login_id.delete(0,"end")
             self.Login_Frame.password.delete(0,"end")
             self.reset_signup()
@@ -309,7 +308,7 @@ class singup_frame(ctk.CTkFrame):
         self.show = ctk.CTkButton(master= self.login_page,text="",image=self.controller.eye_open,bg_color="#343638",fg_color="#343638",width=20,height=20,command=lambda: (self.controller.show_password(self.controller.Singup_Frame)))
         self.show.place(relx=.43, rely=0.75, anchor="e") 
 
-        self.register_button = ctk.CTkButton(self.login_page,width=150,height=35,text="Sign Up",font=("Roboto",20,"bold"))
+        self.register_button = ctk.CTkButton(self.login_page,width=150,height=35,text="Sign Up",font=("Roboto",20,"bold"),command=lambda:self.controller.New_user())
         self.register_button.place(relx = 0.6,rely = 0.3)
 
         self.login_button = ctk.CTkButton(self.login_page,width=150,height=35,text="Login",font=("Roboto",20,"bold"),command=lambda:(self.controller.show_frame(self.controller.Login_Frame),self.controller.reset_signup()))
