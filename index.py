@@ -162,6 +162,7 @@ class app(ctk.CTk):
         if self.ask:
             self.Login_Frame.login_id.delete(0,"end")
             self.Login_Frame.password.delete(0,"end")
+            self.Login_Frame.login_mess.configure(text = "")
             self.show_frame(self.Login_Frame)
             self.show_frame(self.Manu_Frame)                   
 
@@ -242,7 +243,7 @@ class app(ctk.CTk):
         self.Singup_Frame.email_lable.configure(text = "Email ID:")  
         self.Singup_Frame.email.configure(border_color = "#565b5e") 
         self.focus()
-                
+                    
 class login_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
         super().__init__(master)
@@ -269,7 +270,7 @@ class login_frame(ctk.CTkFrame):
         self.login_button = ctk.CTkButton(master=self.login_page,text="Login",width=100,height=30,border_color="gray",corner_radius=5,command=lambda:(self.controller.login()),font=("Roboto", 15,"bold"))
         self.login_button.place(relx=0.5, rely=0.7142, anchor="center")
 
-        self.new_user = ctk.CTkButton(master=self.login_page,text="Sign Up",width=85,height=35,border_color="gray",corner_radius=5,command=lambda:(self.controller.show_frame(self.controller.Singup_Frame)),font=("Roboto", 15,"bold"),fg_color="transparent",hover_color="#4E8F69")
+        self.new_user = ctk.CTkButton(master=self.login_page,text="Register",width=85,height=35,border_color="gray",corner_radius=5,command=lambda:(self.controller.show_frame(self.controller.Singup_Frame)),font=("Roboto", 15,"bold"),fg_color="transparent",hover_color="#4E8F69")
         self.new_user.place(relx=0.5, rely=0.85, anchor="center") 
 
         self.show = ctk.CTkButton(master= self.login_page,text="",image=self.controller.eye_open,fg_color="transparent",hover_color="#333333",width=20,height=20,command=lambda: self.controller.show_password(self.controller.Login_Frame))
