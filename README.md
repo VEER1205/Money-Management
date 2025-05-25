@@ -28,8 +28,6 @@
     ```sh
     python index.py
     ```
-    *(Replace `index.py` with the actual entry point if it’s named differently.)*
-
 2. **Use the on-screen interface to manage your finances.**
 
 ## Contributing
