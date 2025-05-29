@@ -12,9 +12,10 @@ class app(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.attributes("-topmost",True)
+        # ctk.set_appearance_mode("light")    
         self.resizable(False,False)
         self.geometry("600x350")
-        ctk.set_default_color_theme("themes/marsh.json")
+        ctk.set_default_color_theme("themes/rime.json")
         self.title("Money Management")
         self.bind("")
 
@@ -243,6 +244,12 @@ class app(ctk.CTk):
         self.Singup_Frame.email_lable.configure(text = "Email ID:")  
         self.Singup_Frame.email.configure(border_color = "#565b5e") 
         self.focus()
+
+    def change_themes(self,t):
+        ctk.set_appearance_mode(t)   
+
+    def change_color(self,c):
+        ctk.set_default_color_theme(f"themes/{c}.json")    
                     
 class login_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
@@ -270,7 +277,7 @@ class login_frame(ctk.CTkFrame):
         self.login_button = ctk.CTkButton(master=self.login_page,text="Login",width=100,height=30,border_color="gray",corner_radius=5,command=lambda:(self.controller.login()),font=("Roboto", 15,"bold"))
         self.login_button.place(relx=0.5, rely=0.7142, anchor="center")
 
-        self.new_user = ctk.CTkButton(master=self.login_page,text="Register",width=85,height=35,border_color="gray",corner_radius=5,command=lambda:(self.controller.show_frame(self.controller.Singup_Frame)),font=("Roboto", 15,"bold"),fg_color="transparent",hover_color="#4E8F69")
+        self.new_user = ctk.CTkButton(master=self.login_page,text="Register",width=85,height=35,border_color="gray",corner_radius=5,command=lambda:(self.controller.show_frame(self.controller.Singup_Frame)),font=("Roboto", 15,"bold"),fg_color="transparent")
         self.new_user.place(relx=0.5, rely=0.85, anchor="center") 
 
         self.show = ctk.CTkButton(master= self.login_page,text="",image=self.controller.eye_open,fg_color="transparent",hover_color="#333333",width=20,height=20,command=lambda: self.controller.show_password(self.controller.Login_Frame))
@@ -319,7 +326,7 @@ class singup_frame(ctk.CTkFrame):
         
 class setting_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
-        super().__init__(master, fg_color="#333333",corner_radius=5)
+        super().__init__(master,corner_radius=5,border_width=3)
         self.controller = controller
     
         home_i_path = os.path.join(os.path.dirname(__file__),'images/home.png')
@@ -340,9 +347,18 @@ class setting_frame(ctk.CTkFrame):
         import_button = ctk.CTkButton(master=self,text="Import Data",command=lambda :self.controller.import_data())
         import_button.pack(side = "bottom",pady = 1,padx = 10)
 
+        theme_button = ctk.CTkOptionMenu(master=self,values=["light","dark","system"],command=self.controller.change_themes)
+        theme_button.pack(side = "bottom",pady = 10,padx = 10)
+        
+
+        color_button =theme_button = ctk.CTkOptionMenu(master=self,values=["marsh","orange","rime"],command=self.controller.change_color)
+        color_button.pack(side = "bottom",pady = 1,padx = 10)
+        
+
+
 class manu_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
-        super().__init__(master,fg_color="#333333",corner_radius=5)
+        super().__init__(master,border_width=3,corner_radius=5)
         self.controller = controller
 
         self.sett_i_path = os.path.join(os.path.dirname(__file__), 'images/setting.png')
@@ -362,7 +378,7 @@ class manu_frame(ctk.CTkFrame):
 
 class book(ctk.CTkScrollableFrame):
     def __init__(self, master,controller):
-        super().__init__(master,bg_color="#333333",fg_color="#333333",border_color="gray",border_width=1,orientation="vertical")
+        super().__init__(master,border_color="gray",border_width=3,orientation="vertical")
         self.controller = controller
 
         ctk.CTkLabel(self, width=40, height=30, corner_radius=5, fg_color="gray", text="In.").grid(row = 0,column = 0,padx = 2,pady = 0)
@@ -371,7 +387,7 @@ class book(ctk.CTkScrollableFrame):
 
 class add_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
-        super().__init__(master,bg_color="#333333",fg_color="#333333",corner_radius=10)
+        super().__init__(master,corner_radius=10,border_width=3)
         self.controller = controller
 
         self.add_mess = ctk.CTkLabel(master=self.controller.Manu_Frame,text="Entry Added!",width=185,height=120,font=("Roboto", 23,"bold"),text_color="green")
@@ -397,7 +413,7 @@ class add_frame(ctk.CTkFrame):
 
 class remove_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
-        super().__init__(master,bg_color="#333333",fg_color="#333333",corner_radius=10)
+        super().__init__(master,corner_radius=10,border_width=1)
         self.controller = controller
 
         self.table = ctk.CTkFrame(master=self,border_width=1,border_color="gray",height=100)

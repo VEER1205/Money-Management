@@ -58,3 +58,6 @@ def delet_user(uid):
     cus.execute("DELETE FROM User WHERE id = %s",(uid,))
     conn.commit()
 
+def change_mode(t,uid):
+    cus.execute("UPDATE User SET mode = %s WHERE id = %s",(t,uid))
+    conn.commit()

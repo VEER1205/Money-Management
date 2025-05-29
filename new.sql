@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS entrys (
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE
 );
 
-ALTER TABLE User ADD COLUMN email varchar(30);
+ALTER TABLE User ADD COLUMN mode varchar(30) DEFAULT 'system';
 SELECT * FROM User;
 select * from entrys;
 delete from User where name = 'veer';
