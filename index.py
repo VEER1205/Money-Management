@@ -4,18 +4,20 @@ import os,sys
 from tkinter import messagebox,filedialog
 from PIL import Image
 import pandas as pd
-import threading
 import dns.resolver
-import re
+import re,json
 
-class app(ctk.CTk):
+class App(ctk.CTk):
     def __init__(self):
         super().__init__()
+        if not os.path.exists("theme.json"):
+            self.theme_json()
         self.attributes("-topmost",True)
-        # ctk.set_appearance_mode("light")    
+        self.theme = self.load_json()
         self.resizable(False,False)
         self.geometry("600x350")
-        ctk.set_default_color_theme("themes/rime.json")
+        ctk.set_appearance_mode(self.theme["mode"])    
+        ctk.set_default_color_theme(self.theme["theme"])
         self.title("Money Management")
         self.bind("")
 
@@ -38,18 +40,31 @@ class app(ctk.CTk):
         # Create Frame Object
         self.Login_Frame = login_frame(self,controller=self)
         self.Setting_Frame = setting_frame(self.m,controller=self)
-        self.Manu_Frame = manu_frame(self.m,controller=self)
+        self.menu_Frame = menu_frame(self.m,controller=self)
         self.Book = book(self.content_frame,controller=self)
         self.Add_Frame = add_frame(self.content_frame,controller=self)
         self.Remove_Frame = remove_frame(self.content_frame,controller=self)
         self.Singup_Frame = singup_frame(self,controller=self)
         self.place_frame()
-        self.Manu_Frame.mess.lift()
+        self.menu_Frame.mess.lift()
         self.show_frame(self.Book)
-        self.show_frame(self.Manu_Frame)
+        self.show_frame(self.menu_Frame)
         self.show_frame(self.Login_Frame)
-        
-    def login(self):
+
+    def change_json(self,data)->None:
+        with open("theme.json","+w") as file:
+            json.dump(data,file,indent= 4)  
+
+    def theme_json(self)->None:
+        with open("theme.json","+w") as file:
+            json.dump({"theme":"themes/rime.json","mode":"system"},file,indent= 4)         
+
+    def load_json(self)->dict:
+        with open("theme.json","r") as file:
+            data = json.load(file)
+        return data           
+          
+    def login(self)->None:
         if self.Login_Frame.login_id.get() == "" or self.Login_Frame.password.get() == "":
            pass
         else:
@@ -65,7 +80,7 @@ class app(ctk.CTk):
                 else:
                     self.Login_Frame.login_mess.configure(text="No account found!", font=("Roboto", 15, "bold"))
 
-    def New_user(self):
+    def New_user(self)->None:
         if self.Singup_Frame.login_id.get() == "" or self.Singup_Frame.password.get() == "":
             pass
         else:
@@ -76,7 +91,7 @@ class app(ctk.CTk):
             self.Login_Frame.password.delete(0,"end")
             self.reset_signup()
 
-    def show_password(self,Frame):
+    def show_password(self,Frame)->None:
         if Frame.password.cget("show") == "*":
             Frame.password.configure(show="",font = ("Roboto", 15,"bold"))
             Frame.show.configure(image=self.eye_closed)  
@@ -84,17 +99,17 @@ class app(ctk.CTk):
             Frame.password.configure(show="*",font = ("Roboto", 20,"bold"))
             Frame.show.configure(image=self.eye_open)
 
-    def place_frame(self):
-        for frame in (self.Book,self.Add_Frame,self.Remove_Frame,self.Manu_Frame,self.Setting_Frame,self.Singup_Frame):
+    def place_frame(self)->None:
+        for frame in (self.Book,self.Add_Frame,self.Remove_Frame,self.menu_Frame,self.Setting_Frame,self.Singup_Frame):
             frame.place(x=0,y = 0, relwidth=1, relheight=1)
             frame.pack_propagate(False)
 
-    def show_frame(self,frame):
+    def show_frame(self,frame)->None:
         if frame in [self.Book,self.Add_Frame,self.Remove_Frame]:
-            self.Manu_Frame.mess.configure(text = "Welcome\nTo\nApp",font = ("Roboto", 20,"bold"))  
+            self.menu_Frame.mess.configure(text = "Welcome\nTo\nApp",font = ("Roboto", 20,"bold"))  
         frame.lift()  
 
-    def update(self):
+    def update(self)->None:
         # Remove only old data (skip headers)
         for widget in self.Book.winfo_children()[3:]:
             widget.destroy()
@@ -112,11 +127,17 @@ class app(ctk.CTk):
             self.Book.grid_rowconfigure(i+1, weight=0)
             total_amount += float(am)
 
-        self.Manu_Frame.total.configure(text = f"Balance = {round(total_amount,2)}")      
+        balance = f"Balance = {round(total_amount,2)}"
+        self.menu_Frame.total.configure(text = f"Balance = {round(total_amount,2)}")
+        # print(len(balance))
+        # if len(balance) <= 20:
+        #     self.menu_Frame.total.configure(text = balance)     
+        # else:
+        #     self.menu_Frame.total.configure(text = f"Balance\n=\n{round(total_amount,2)}") 
 
-    def remove(self):
+    def remove(self)->None:
         if self.Remove_Frame.index_in.get() == "":
-            self.Manu_Frame.mess.configure(text = "Pls Enter\nIndex",font = ("Roboto", 20,"bold"))
+            self.menu_Frame.mess.configure(text = "Pls Enter\nIndex",font = ("Roboto", 20,"bold"))
             self.focus()   
         else:
             try:
@@ -127,28 +148,28 @@ class app(ctk.CTk):
                 ctk.CTkLabel(self.Remove_Frame.table, width=105, height=28, corner_radius=5, text=m,anchor="e").grid(row = 1,column = 1,padx = 0,pady = 1)                
                 db.delet_data(self.uid,e)
                 del self.data[int(self.Remove_Frame.index_in.get())-1]
-                self.Manu_Frame.mess.configure(text = "Entry Removed!",font=("Roboto", 23,"bold"))
+                self.menu_Frame.mess.configure(text = "Entry Removed!",font=("Roboto", 23,"bold"))
                 self.update()
                 self.Remove_Frame.index_in.delete(0,"end") 
                 self.focus()
             except:
-                self.Manu_Frame.mess.configure(text = "Invalid\nSelection!",font = ("Roboto", 20,"bold"))
+                self.menu_Frame.mess.configure(text = "Invalid\nSelection!",font = ("Roboto", 20,"bold"))
                 self.Remove_Frame.index_in.delete(0,"end") 
                 self.focus() 
                 
-    def Check_not_empty(self):
-        if self.Add_Frame.entery.get() == "" or self.Add_Frame.amout.get() == "":
+    def Check_not_empty(self)->None:
+        if self.Add_Frame.entery.get() == "" or self.Add_Frame.amount.get() == "":
             self.Add_Frame.empty.lift()
             self.focus()    
         else:
             try:
                 if self.Add_Frame.cke.get():
-                    self.data.append(tuple([self.Add_Frame.entery.get().title(),float(self.Add_Frame.amout.get())]))
-                    db.add_data(self.uid,self.Add_Frame.entery.get().title(),float(self.Add_Frame.amout.get()))
+                    self.data.Append(tuple([self.Add_Frame.entery.get().title(),float(self.Add_Frame.amount.get())]))
+                    db.add_data(self.uid,self.Add_Frame.entery.get().title(),float(self.Add_Frame.amount.get()))
                 else:    
-                    self.data.append(tuple([self.Add_Frame.entery.get().title(),-float(self.Add_Frame.amout.get())]))  
-                    db.add_data(self.uid,self.Add_Frame.entery.get().title(),-float(self.Add_Frame.amout.get()))  
-                self.Add_Frame.amout.delete(0,"end")
+                    self.data.Append(tuple([self.Add_Frame.entery.get().title(),-float(self.Add_Frame.amount.get())]))  
+                    db.add_data(self.uid,self.Add_Frame.entery.get().title(),-float(self.Add_Frame.amount.get()))  
+                self.Add_Frame.amount.delete(0,"end")
                 self.Add_Frame.entery.delete(0,"end")  
                 self.Add_Frame.cke.deselect()  
                 self.Add_Frame.add_mess.lift()
@@ -158,16 +179,16 @@ class app(ctk.CTk):
                 self.Add_Frame.add_error.lift()
                 self.focus() 
 
-    def logout(self):
+    def logout(self)->None:
         self.ask =  messagebox.askyesno("","Do You want to Logout")
         if self.ask:
             self.Login_Frame.login_id.delete(0,"end")
             self.Login_Frame.password.delete(0,"end")
             self.Login_Frame.login_mess.configure(text = "")
             self.show_frame(self.Login_Frame)
-            self.show_frame(self.Manu_Frame)                   
+            self.show_frame(self.menu_Frame)                   
 
-    def Delete_user(self):
+    def Delete_user(self)->None:
         ask =  messagebox.askyesno("","Do You want to Delete Account")
         if ask:
             db.delet_user(self.uid)
@@ -175,16 +196,16 @@ class app(ctk.CTk):
             self.Login_Frame.login_id.delete(0,"end")
             self.Login_Frame.password.delete(0,"end")
             self.show_frame(self.Login_Frame)
-            self.show_frame(self.Manu_Frame)  
+            self.show_frame(self.menu_Frame)  
 
-    def export(self):
+    def export(self)->None:
         df = pd.DataFrame(data = self.data,columns=("Details","Amount"))
         df.index = range(1, len(df)+1)
         filepath = filedialog.asksaveasfilename(defaultextension=".xlsx",filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")])
         if filepath:
             df.to_excel(filepath, index=False)  
 
-    def import_data(self):
+    def import_data(self)->None:
         path = filedialog.askopenfilename(defaultextension=".xlsx",filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")])
         if path:
             try:
@@ -197,29 +218,29 @@ class app(ctk.CTk):
                     self.data.extend(data_list[1:])
                     db.add_data_multiple(self.uid,self.data)
                     self.update()
-                    self.show_frame(self.Manu_Frame)
+                    self.show_frame(self.menu_Frame)
                 else:
                     messagebox.showerror("Import Error","The imported data must have two columns(Details, Amount)")
             except Exception as e:
                 messagebox.showerror("Import Error",f"Error importing data: {str(e)}")    
 
-    def restart_app(self):
-        """Restart the application without closing the terminal."""
+    def restart_App(self):
+        """Restart the Application without closing the terminal."""
         self.python = sys.executable  # Get the Python interpreter path
         os.execl(self.python, self.python, *sys.argv)  # Restart the script   
 
-    def is_valid_email(self,email):
+    def is_valid_email(self,email)->str:
         pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         return re.match(pattern, email) is not None
 
-    def domain_has_mx(self,domain):
+    def domain_has_mx(self,domain)->bool:
         try:
             records = dns.resolver.resolve(domain, 'MX')
             return len(records) > 0
         except:
             return False
 
-    def check_email(self,email):
+    def check_email(self,email)->None:
         if not self.is_valid_email(email):
             self.Singup_Frame.email_lable.configure(text = "Email ID: Invalid")
             self.Singup_Frame.email.configure(border_color = "red")
@@ -230,13 +251,13 @@ class app(ctk.CTk):
         self.Singup_Frame.email_lable.configure(text = "Email ID:")  
         self.Singup_Frame.email.configure(border_color = "gray")   
 
-    def vaild_user(self):
+    def vaild_user(self)->None:
         if db.user_exists(self.Singup_Frame.login_id.get()):
             self.Singup_Frame.login_id_lable.configure(text="Account already exists!", font=("Roboto", 13, "bold")) 
             return
         self.Singup_Frame.login_id_lable.configure(text="Login ID:", font=("Roboto", 15, "bold"))
 
-    def reset_signup(self):
+    def reset_signup(self)->None:
         self.Singup_Frame.login_id.delete(0,"end")
         self.Singup_Frame.email.delete(0,"end")
         self.Singup_Frame.password.delete(0,"end")
@@ -245,11 +266,15 @@ class app(ctk.CTk):
         self.Singup_Frame.email.configure(border_color = "#565b5e") 
         self.focus()
 
-    def change_themes(self,t):
-        ctk.set_appearance_mode(t)   
+    def change_themes(self,t)->None:
+        self.theme["mode"] = t
+        self.change_json(self.theme)
+        ctk.set_appearance_mode(self.theme["mode"])  
 
-    def change_color(self,c):
-        ctk.set_default_color_theme(f"themes/{c}.json")    
+    def change_color(self,c)->None:
+        self.theme["theme"] = f"themes/{c}.json"
+        self.change_json(self.theme)
+        ctk.set_default_color_theme(self.theme["theme"])    
                     
 class login_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
@@ -332,7 +357,7 @@ class setting_frame(ctk.CTkFrame):
         home_i_path = os.path.join(os.path.dirname(__file__),'images/home.png')
         home_i = ctk.CTkImage(light_image=Image.open(home_i_path), size=(20, 20))
 
-        home_button = ctk.CTkButton(master=self,text="",image=home_i,height= 20,width=20,command= lambda : self.controller.show_frame(self.controller.Manu_Frame))
+        home_button = ctk.CTkButton(master=self,text="",image=home_i,height= 20,width=20,command= lambda : self.controller.show_frame(self.controller.menu_Frame))
         home_button.place(relx = 0.05, rely = 0.02)
 
         delete_buttom = ctk.CTkButton(master=self, text="Delete Account", command=lambda:(self.controller.Delete_user()))
@@ -349,14 +374,13 @@ class setting_frame(ctk.CTkFrame):
 
         theme_button = ctk.CTkOptionMenu(master=self,values=["light","dark","system"],command=self.controller.change_themes)
         theme_button.pack(side = "bottom",pady = 10,padx = 10)
+        theme_button.set("theme")
         
-
         color_button =theme_button = ctk.CTkOptionMenu(master=self,values=["marsh","orange","rime"],command=self.controller.change_color)
         color_button.pack(side = "bottom",pady = 1,padx = 10)
+        color_button.set("color")
         
-
-
-class manu_frame(ctk.CTkFrame):
+class menu_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
         super().__init__(master,border_width=3,corner_radius=5)
         self.controller = controller
@@ -366,11 +390,12 @@ class manu_frame(ctk.CTkFrame):
         self.setting_button = ctk.CTkButton(master=self,text="",image=self.sett_i,height= 20,width=20,command= lambda : self.controller.show_frame(self.controller.Setting_Frame))
         self.setting_button.place(relx = 0.05, rely = 0.02)
 
-        self.mess = ctk.CTkLabel(master=self,text="Welcome\nTo\nApp",width=185,height=120,font=("Roboto", 23,"bold"),)
-        self.mess.place(relx = 0.5,rely=0.35, anchor="center")
+        self.mess = ctk.CTkLabel(master=self,text="Welcome\nTo\nApp",width=185,height=80,font=("Roboto", 23,"bold"),fg_color="transparent",bg_color="transparent")
+        self.mess.place(relx = 0.5,rely=0.25, anchor="center")
 
         self.total = ctk.CTkLabel(master = self,text="Balance = 0",anchor="w",height=30,font=("Roboto", 17,"bold"))
         self.total.place(relx=0.5, rely=0.58, anchor="center")
+        self.total.lift()
 
         ctk.CTkButton(master=self,text="Add Entery",command=lambda:(self.controller.show_frame(self.controller.Add_Frame),self.mess.lift())).pack(pady = 10,side = "bottom")
         ctk.CTkButton(master=self,text="Remove Entery",command=lambda:(self.controller.show_frame(self.controller.Remove_Frame),self.mess.lift())).pack(pady = 0,side = "bottom")
@@ -378,63 +403,63 @@ class manu_frame(ctk.CTkFrame):
 
 class book(ctk.CTkScrollableFrame):
     def __init__(self, master,controller):
-        super().__init__(master,border_color="gray",border_width=3,orientation="vertical")
+        super().__init__(master,border_width=3,orientation="vertical",corner_radius=5)
         self.controller = controller
-
-        ctk.CTkLabel(self, width=40, height=30, corner_radius=5, fg_color="gray", text="In.").grid(row = 0,column = 0,padx = 2,pady = 0)
-        ctk.CTkLabel(self, width=210, height=30, corner_radius=5, fg_color="gray", text="Details").grid(row = 0,column = 1,padx = 2,pady =0)
-        ctk.CTkLabel(self, width=90, height=30, corner_radius=5, fg_color="gray", text="Amount").grid(row = 0,column = 2,padx = 2,pady = 0)
+        
+        ctk.CTkButton(self, width=40, height=30,corner_radius=5,text="In.",state="disable").grid(row = 0,column = 0,padx = 1,pady = 0)
+        ctk.CTkButton(self,width=210, height=30,corner_radius=5,  text="Details",state="disable").grid(row = 0,column = 1,padx = 1,pady = 0)
+        ctk.CTkButton(self,width=90, height=30, corner_radius=5, text="Amount",state="disable").grid(row = 0,column = 2,padx = 1,pady = 0)
 
 class add_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
-        super().__init__(master,corner_radius=10,border_width=3)
+        super().__init__(master,corner_radius=5,border_width=3)
         self.controller = controller
 
-        self.add_mess = ctk.CTkLabel(master=self.controller.Manu_Frame,text="Entry Added!",width=185,height=120,font=("Roboto", 23,"bold"),text_color="green")
+        self.add_mess = ctk.CTkLabel(master=self.controller.menu_Frame,text="Entry Added!",width=185,height=120,font=("Roboto", 23,"bold"),text_color="green")
         self.add_mess.place(relx = 0.5,rely=0.35, anchor="center")
 
-        self.add_error = ctk.CTkLabel(master=self.controller.Manu_Frame,text="INVALIDE\nINPUT",width=185,height=120,font=("Roboto", 23,"bold"),)
+        self.add_error = ctk.CTkLabel(master=self.controller.menu_Frame,text="INVALIDE\nINPUT",width=185,height=120,font=("Roboto", 23,"bold"),)
         self.add_error.place(relx = 0.5,rely=0.35, anchor="center")
 
-        self.empty = ctk.CTkLabel(master=self.controller.Manu_Frame,text="Pls Enter The\nDetials",width=185,height=120,font=("Roboto", 23,"bold"),)
+        self.empty = ctk.CTkLabel(master=self.controller.menu_Frame,text="Pls Enter The\nDetials",width=185,height=120,font=("Roboto", 23,"bold"),)
         self.empty.place(relx = 0.5,rely=0.35, anchor="center")
 
         self.entery = ctk.CTkEntry(self,placeholder_text="Enter The Entery",width=200,height=50,font=("Roboto", 20,"bold"),justify="center")
         self.entery.place(x = 100,y = 70,)
 
-        self.amout = ctk.CTkEntry(self,placeholder_text = "Enter The Amount",width=150,height=40,font=("Roboto", 13,"bold"),justify="center")
-        self.amout.place(x = 123,y = 140)
+        self.amount = ctk.CTkEntry(self,placeholder_text = "Enter The Amount",width=150,height=40,font=("Roboto", 13,"bold"),justify="center")
+        self.amount.place(x = 123,y = 140)
 
         self.cke = ctk.CTkCheckBox(self,width=40,height=40,checkbox_height=20,checkbox_width=20,text="IF CASH IS ADD")
         self.cke.place(x = 136,y = 190)
 
-        self.sumbmit = ctk.CTkButton(self,width=100,height=30,text="Add",command= lambda:threading.Thread(self.controller.Check_not_empty()))
+        self.sumbmit = ctk.CTkButton(self,width=100,height=30,text="Add",command= lambda:self.controller.Check_not_empty())
         self.sumbmit.place(x = 145,y = 240)
 
 class remove_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
-        super().__init__(master,corner_radius=10,border_width=1)
+        super().__init__(master,corner_radius=5,border_width=1)
         self.controller = controller
 
-        self.table = ctk.CTkFrame(master=self,border_width=1,border_color="gray",height=100)
+        self.table = ctk.CTkFrame(master=self,border_width=1,height=100)
         self.table.pack(expand = True,fill = "both",pady = 5,padx = 3)
         self.table.pack_propagate(False) 
 
-        self.manu = ctk.CTkFrame(master=self,height=250)
-        self.manu.pack(fill = "both", padx = 3,pady = 5)
-        self.manu.pack_propagate(False)
+        self.menu = ctk.CTkFrame(master=self,height=250)
+        self.menu.pack(fill = "both", padx = 3,pady = 5)
+        self.menu.pack_propagate(False)
 
-        self.index = ctk.CTkLabel(master = self.manu,text="Enter The Index For Remove The Entery",height=50,font = ("Roboto", 15,"bold"))
+        self.index = ctk.CTkLabel(master = self.menu,text="Enter The Index For Remove The Entery",height=50,font = ("Roboto", 15,"bold"))
         self.index.pack(side = "top",padx = 10,pady =15)
 
-        self.index_in = ctk.CTkEntry(self.manu,width=80,height=30,placeholder_text="Enter",font=("Roboto", 20,"bold"),justify="center")
+        self.index_in = ctk.CTkEntry(self.menu,width=80,height=30,placeholder_text="Enter",font=("Roboto", 20,"bold"),justify="center")
         self.index_in.pack(side = "top",padx = 10,pady = 10)
 
-        self.delet = ctk.CTkButton(self.manu,text="Remove",command= lambda:self.controller.remove()).pack()
+        self.delet = ctk.CTkButton(self.menu,text="Remove",command= lambda:self.controller.remove()).pack()
 
-        ctk.CTkLabel(self.table, width=250, height=28, corner_radius=5, fg_color="gray", text="Details").grid(row = 0,column = 0,padx =5,pady =4)
-        ctk.CTkLabel(self.table, width=105, height=28, corner_radius=5, fg_color="gray", text="Amount").grid(row = 0,column = 1,padx = 0,pady =4)
+        ctk.CTkButton(self.table, width=250, height=28, corner_radius=5,  text="Details",state="disable").grid(row = 0,column = 0,padx =5,pady =4)
+        ctk.CTkButton(self.table, width=105, height=28, corner_radius=5,  text="Amount",state="disable").grid(row = 0,column = 1,padx = 0,pady =4)
 
 if __name__ == "__main__":
-    APP = app()
-    APP.mainloop()
+    App = App()
+    App.mainloop()
