@@ -1,11 +1,11 @@
 import customtkinter as ctk
-import database as db
 import os,sys
 from tkinter import messagebox,filedialog
 from PIL import Image
 import pandas as pd
 import dns.resolver
 import re,json
+import requests
 
 class App(ctk.CTk):
     def __init__(self):
@@ -30,6 +30,7 @@ class App(ctk.CTk):
         self.m.pack(expand=True, side="left", fill="y",padx = 5,pady = 5)
         self.content_frame = ctk.CTkFrame(master=self.main_frame,width=400,height=330, bg_color="transparent", fg_color="transparent", corner_radius=5,border_color="gray")
         self.content_frame.pack(side="right", expand=False, fill="y", padx=5, pady=5)
+        self.url = "http://127.0.0.1:8000"
 
         # importing Images
         self.eye_open_path = os.path.join(os.path.dirname(__file__),'images/image.png')
@@ -68,14 +69,15 @@ class App(ctk.CTk):
         if self.Login_Frame.login_id.get() == "" or self.Login_Frame.password.get() == "":
            pass
         else:
-            self.uid = db.get_user(self.Login_Frame.login_id.get(), self.Login_Frame.password.get())
-            if self.uid:
-                 
-                self.data = db.load_data(self.uid)  # Load user data after login
+            login_json = {"username":self.Login_Frame.login_id.get(),"password":self.Login_Frame.password.get()}
+            self.uid = int(requests.post(f"{self.url}/login",json=login_json).json())
+            if self.uid != 0: 
+                self.data = requests.get(f"{self.url}/load_data/{self.uid}").json()  # Load user data after login
                 self.update()
                 self.main_frame.lift()
+                self.Login_Frame.login_mess.configure(text="", font=("Roboto", 15, "bold"))
             else:
-                if db.user_exists(self.Login_Frame.login_id.get()):
+                if requests.get(f"{self.url}/user_exists/{self.Login_Frame.login_id.get()}").json():
                     self.Login_Frame.login_mess.configure(text="Wrong Password!", font=("Roboto", 15, "bold"))
                 else:
                     self.Login_Frame.login_mess.configure(text="No account found!", font=("Roboto", 15, "bold"))
@@ -84,11 +86,16 @@ class App(ctk.CTk):
         if self.Singup_Frame.login_id.get() == "" or self.Singup_Frame.password.get() == "":
             pass
         else:
-            db.create_user(self.Singup_Frame.login_id.get(),self.Singup_Frame.password.get(),self.Singup_Frame.email.get())
-            self.Login_Frame.lift()
+            data = {
+                    "username":self.Singup_Frame.login_id.get() ,
+                    "password": self.Singup_Frame.password.get()
+                    }
+            # db.create_user(self.Singup_Frame.login_id.get(),self.Singup_Frame.password.get(),self.Singup_Frame.email.get())
+            requests.post(f"{self.url}/create_user",json=data)
+            self.Login_Frame.lift()   
             self.Login_Frame.login_mess.configure(text="Account created successfully!", font=("Roboto", 15, "bold"))
             self.Login_Frame.login_id.delete(0,"end")
-            self.Login_Frame.password.delete(0,"end")
+            self.Login_Frame.password.delete(0,"end")  
             self.reset_signup()
 
     def show_password(self,Frame)->None:
@@ -120,12 +127,12 @@ class App(ctk.CTk):
             ctk.CTkLabel(self.Book, width=210, height=30, corner_radius=5, fg_color="gray", text="Details").grid(row=0, column=1, padx=2, sticky="w")
             ctk.CTkLabel(self.Book, width=90, height=30, corner_radius=5, fg_color="gray", text="Amount").grid(row=0, column=2, padx=2, sticky="w")
         total_amount = 0
-        for i, (en, am) in enumerate(self.data):
+        for i,item in enumerate(self.data):
             ctk.CTkLabel(self.Book, width=40, height=30, text=i+1).grid(row=i+1, column=0, padx=2)
-            ctk.CTkLabel(self.Book, width=210, height=30, text=en, anchor="w",wraplength=150).grid(row=i+1, column=1, padx=2)
-            ctk.CTkLabel(self.Book, width=90, height=30, text=round(am,2), anchor="e").grid(row=i+1, column=2, padx=2) 
+            ctk.CTkLabel(self.Book, width=210, height=30, text=item["entry"], anchor="w",wraplength=150).grid(row=i+1, column=1, padx=2)
+            ctk.CTkLabel(self.Book, width=90, height=30, text=round(float(item["amount"]),2), anchor="e").grid(row=i+1, column=2, padx=2) 
             self.Book.grid_rowconfigure(i+1, weight=0)
-            total_amount += float(am)
+            total_amount += float(item["amount"])
 
         balance = f"Balance = {round(total_amount,2)}"
         self.menu_Frame.total.configure(text = f"Balance = {round(total_amount,2)}")
@@ -141,12 +148,12 @@ class App(ctk.CTk):
             self.focus()   
         else:
             try:
-                e,m = self.data[int(self.Remove_Frame.index_in.get())-1]
+                item = self.data[int(self.Remove_Frame.index_in.get())-1]
                 for widget in self.Remove_Frame.table.winfo_children()[2:]:
                     widget.destroy()
-                ctk.CTkLabel(self.Remove_Frame.table, width=250, height=28, corner_radius=5 , text=e,anchor="w").grid(row = 1,column = 0,padx =5,pady =1)
-                ctk.CTkLabel(self.Remove_Frame.table, width=105, height=28, corner_radius=5, text=m,anchor="e").grid(row = 1,column = 1,padx = 0,pady = 1)                
-                db.delet_data(self.uid,e)
+                ctk.CTkLabel(self.Remove_Frame.table, width=250, height=28, corner_radius=5 , text=item["entry"],anchor="w").grid(row = 1,column = 0,padx =5,pady =1)
+                ctk.CTkLabel(self.Remove_Frame.table, width=105, height=28, corner_radius=5, text=item["amount"],anchor="e").grid(row = 1,column = 1,padx = 0,pady = 1)                
+                requests.delete(f"{self.url}/delet_data/{self.uid}",json = {"entry": item['entry']})
                 del self.data[int(self.Remove_Frame.index_in.get())-1]
                 self.menu_Frame.mess.configure(text = "Entry Removed!",font=("Roboto", 23,"bold"))
                 self.update()
@@ -157,27 +164,41 @@ class App(ctk.CTk):
                 self.Remove_Frame.index_in.delete(0,"end") 
                 self.focus() 
                 
-    def Check_not_empty(self)->None:
-        if self.Add_Frame.entery.get() == "" or self.Add_Frame.amount.get() == "":
+    def Check_not_empty(self) -> None:
+        entry = self.Add_Frame.entery.get().strip()
+        amount_str = self.Add_Frame.amount.get().strip()
+
+        if entry == "" or amount_str == "":
             self.Add_Frame.empty.lift()
-            self.focus()    
-        else:
-            try:
-                if self.Add_Frame.cke.get():
-                    self.data.Append(tuple([self.Add_Frame.entery.get().title(),float(self.Add_Frame.amount.get())]))
-                    db.add_data(self.uid,self.Add_Frame.entery.get().title(),float(self.Add_Frame.amount.get()))
-                else:    
-                    self.data.Append(tuple([self.Add_Frame.entery.get().title(),-float(self.Add_Frame.amount.get())]))  
-                    db.add_data(self.uid,self.Add_Frame.entery.get().title(),-float(self.Add_Frame.amount.get()))  
-                self.Add_Frame.amount.delete(0,"end")
-                self.Add_Frame.entery.delete(0,"end")  
-                self.Add_Frame.cke.deselect()  
-                self.Add_Frame.add_mess.lift()
-                self.update()
-                self.focus()
-            except:
-                self.Add_Frame.add_error.lift()
-                self.focus() 
+            self.focus()
+            return
+
+        try:
+            amount = float(amount_str)
+            if not self.Add_Frame.cke.get():
+                amount *= -1
+
+            data = {
+                "entry": entry.title(),
+                "amount": amount
+            }
+
+            self.data.append(data)  # corrected append
+            requests.post(f"{self.url}/add_data/{self.uid}", json=data)
+
+        # Clear inputs
+            self.Add_Frame.amount.delete(0, "end")
+            self.Add_Frame.entery.delete(0, "end")
+            self.Add_Frame.cke.deselect()
+
+            self.Add_Frame.add_mess.lift()
+            self.update()
+            self.focus()
+
+        except ValueError:
+            self.Add_Frame.add_error.lift()
+            self.focus()
+
 
     def logout(self)->None:
         self.ask =  messagebox.askyesno("","Do You want to Logout")
@@ -191,7 +212,7 @@ class App(ctk.CTk):
     def Delete_user(self)->None:
         ask =  messagebox.askyesno("","Do You want to Delete Account")
         if ask:
-            db.delet_user(self.uid)
+            requests.delete(f"{self.url}/delete_user/{self.uid}")
             self.Login_Frame.login_mess.configure(text="Account Deleted successfully!", font=("Roboto", 15, "bold"))
             self.Login_Frame.login_id.delete(0,"end")
             self.Login_Frame.password.delete(0,"end")
@@ -199,11 +220,12 @@ class App(ctk.CTk):
             self.show_frame(self.menu_Frame)  
 
     def export(self)->None:
-        df = pd.DataFrame(data = self.data,columns=("Details","Amount"))
-        df.index = range(1, len(df)+1)
-        filepath = filedialog.asksaveasfilename(defaultextension=".xlsx",filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")])
-        if filepath:
-            df.to_excel(filepath, index=False)  
+        print(self.data)
+        # df = pd.DataFrame(data = self.data,columns=("Details","Amount"))
+        # df.index = range(1, len(df)+1)
+        # filepath = filedialog.asksaveasfilename(defaultextension=".xlsx",filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")])
+        # if filepath:
+        #     df.to_excel(filepath, index=False)  
 
     def import_data(self)->None:
         path = filedialog.askopenfilename(defaultextension=".xlsx",filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")])
@@ -215,8 +237,14 @@ class App(ctk.CTk):
 
                 #Check if the imported data has the correct structure
                 if all(len(item) == 2 for item in data_list[1:]) and (data_list not in self.data):
-                    self.data.extend(data_list[1:])
-                    db.add_data_multiple(self.uid,self.data)
+                    for item in data_list[1:]:
+                        entry, amount = item
+                        self.data.append({
+                            "entry": entry,
+                            "amount": float(amount)
+                        })
+                    # db.add_data_multiple(self.uid,self.data)
+                    requests.post(f"{self.url}/add_data_multiple/{self.uid}", json=self.data)
                     self.update()
                     self.show_frame(self.menu_Frame)
                 else:
@@ -252,10 +280,11 @@ class App(ctk.CTk):
         self.Singup_Frame.email.configure(border_color = "gray")   
 
     def vaild_user(self)->None:
-        if db.user_exists(self.Singup_Frame.login_id.get()):
+        if requests.get("http://localhost:8000/user_exists", {"login_id":self.Singup_Frame.login_id.get()}).json():
             self.Singup_Frame.login_id_lable.configure(text="Account already exists!", font=("Roboto", 13, "bold")) 
             return
         self.Singup_Frame.login_id_lable.configure(text="Login ID:", font=("Roboto", 15, "bold"))
+        return
 
     def reset_signup(self)->None:
         self.Singup_Frame.login_id.delete(0,"end")

@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS entrys (
 );
 
 CREATE INDEX amount_index ON entrys(amount);
-ALTER TABLE User ADD COLUMN mode varchar(30) DEFAULT 'system';
+ALTER TABLE User drop column pass;
+ALTER TABLE User ADD COLUMN pass varchar(100) not null;
 SELECT  * FROM User;
 select * from entrys;
 ALTER TABLE user DROP column mode;
@@ -25,5 +26,6 @@ delete from User where name = 'veer';
 call total(12,@t); ----  
 select @t;
 DESCRIBE user;
+SELECT entry, amount FROM entrys WHERE user_id = 12;
 
 
