@@ -169,7 +169,7 @@ class App(ctk.CTk):
         amount_str = self.Add_Frame.amount.get().strip()
 
         if entry == "" or amount_str == "":
-            self.Add_Frame.empty.lift()
+            self.menu_Frame.mess.configure(text = "Pls Enter The\nDetials",font = ("Roboto", 20,"bold"))
             self.focus()
             return
 
@@ -191,12 +191,12 @@ class App(ctk.CTk):
             self.Add_Frame.entery.delete(0, "end")
             self.Add_Frame.cke.deselect()
 
-            self.Add_Frame.add_mess.lift()
+            self.menu_Frame.mess.configure(text = "Entry Added!",font = ("Roboto", 20,"bold"),text_color="green")
             self.update()
             self.focus()
 
         except ValueError:
-            self.Add_Frame.add_error.lift()
+            self.menu_Frame.mess.configure(text = "INVALIDE\nINPUT",font = ("Roboto", 20,"bold"),text_color="red")
             self.focus()
 
 
@@ -239,12 +239,11 @@ class App(ctk.CTk):
                 if all(len(item) == 2 for item in data_list[1:]) and (data_list not in self.data):
                     for item in data_list[1:]:
                         entry, amount = item
-                        self.data.append({
-                            "entry": entry,
-                            "amount": float(amount)
-                        })
-                    # db.add_data_multiple(self.uid,self.data)
-                    requests.post(f"{self.url}/add_data_multiple/{self.uid}", json=self.data)
+                        data = {"entry": entry.title(),
+                                "amount": amount
+                                }
+                        self.data.append(data)  # corrected append
+                        requests.post(f"{self.url}/add_data/{self.uid}", json=data)
                     self.update()
                     self.show_frame(self.menu_Frame)
                 else:
@@ -426,9 +425,9 @@ class menu_frame(ctk.CTkFrame):
         self.total.place(relx=0.5, rely=0.58, anchor="center")
         self.total.lift()
 
-        ctk.CTkButton(master=self,text="Add Entery",command=lambda:(self.controller.show_frame(self.controller.Add_Frame),self.mess.lift())).pack(pady = 10,side = "bottom")
-        ctk.CTkButton(master=self,text="Remove Entery",command=lambda:(self.controller.show_frame(self.controller.Remove_Frame),self.mess.lift())).pack(pady = 0,side = "bottom")
-        ctk.CTkButton(master=self,text="Show Entery",command=lambda:(self.controller.show_frame(self.controller.Book),self.mess.lift())).pack(pady = 10,side = "bottom")
+        ctk.CTkButton(master=self,text="Add Entery",command=lambda:(self.controller.show_frame(self.controller.Add_Frame))).pack(pady = 10,side = "bottom")
+        ctk.CTkButton(master=self,text="Remove Entery",command=lambda:(self.controller.show_frame(self.controller.Remove_Frame))).pack(pady = 0,side = "bottom")
+        ctk.CTkButton(master=self,text="Show Entery",command=lambda:(self.controller.show_frame(self.controller.Book))).pack(pady = 10,side = "bottom")
 
 class book(ctk.CTkScrollableFrame):
     def __init__(self, master,controller):
@@ -443,15 +442,6 @@ class add_frame(ctk.CTkFrame):
     def __init__(self, master,controller):
         super().__init__(master,corner_radius=5,border_width=3)
         self.controller = controller
-
-        self.add_mess = ctk.CTkLabel(master=self.controller.menu_Frame,text="Entry Added!",width=185,height=120,font=("Roboto", 23,"bold"),text_color="green")
-        self.add_mess.place(relx = 0.5,rely=0.35, anchor="center")
-
-        self.add_error = ctk.CTkLabel(master=self.controller.menu_Frame,text="INVALIDE\nINPUT",width=185,height=120,font=("Roboto", 23,"bold"),)
-        self.add_error.place(relx = 0.5,rely=0.35, anchor="center")
-
-        self.empty = ctk.CTkLabel(master=self.controller.menu_Frame,text="Pls Enter The\nDetials",width=185,height=120,font=("Roboto", 23,"bold"),)
-        self.empty.place(relx = 0.5,rely=0.35, anchor="center")
 
         self.entery = ctk.CTkEntry(self,placeholder_text="Enter The Entery",width=200,height=50,font=("Roboto", 20,"bold"),justify="center")
         self.entery.place(x = 100,y = 70,)
